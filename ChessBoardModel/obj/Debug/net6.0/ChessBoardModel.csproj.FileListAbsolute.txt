@@ -10,3 +10,15 @@ C:\Users\jands\source\repos\ChessBoard\ChessBoardModel\obj\Debug\net6.0\ChessBoa
 C:\Users\jands\source\repos\ChessBoard\ChessBoardModel\obj\Debug\net6.0\refint\ChessBoardModel.dll
 C:\Users\jands\source\repos\ChessBoard\ChessBoardModel\obj\Debug\net6.0\ChessBoardModel.pdb
 C:\Users\jands\source\repos\ChessBoard\ChessBoardModel\obj\Debug\net6.0\ref\ChessBoardModel.dll
+C:\Users\jands\Chess\ChessBoardModel\bin\Debug\net6.0\ChessBoardModel.deps.json
+C:\Users\jands\Chess\ChessBoardModel\bin\Debug\net6.0\ChessBoardModel.dll
+C:\Users\jands\Chess\ChessBoardModel\bin\Debug\net6.0\ChessBoardModel.pdb
+C:\Users\jands\Chess\ChessBoardModel\obj\Debug\net6.0\ChessBoardModel.csproj.AssemblyReference.cache
+C:\Users\jands\Chess\ChessBoardModel\obj\Debug\net6.0\ChessBoardModel.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\jands\Chess\ChessBoardModel\obj\Debug\net6.0\ChessBoardModel.AssemblyInfoInputs.cache
+C:\Users\jands\Chess\ChessBoardModel\obj\Debug\net6.0\ChessBoardModel.AssemblyInfo.cs
+C:\Users\jands\Chess\ChessBoardModel\obj\Debug\net6.0\ChessBoardModel.csproj.CoreCompileInputs.cache
+C:\Users\jands\Chess\ChessBoardModel\obj\Debug\net6.0\ChessBoardModel.dll
+C:\Users\jands\Chess\ChessBoardModel\obj\Debug\net6.0\refint\ChessBoardModel.dll
+C:\Users\jands\Chess\ChessBoardModel\obj\Debug\net6.0\ChessBoardModel.pdb
+C:\Users\jands\Chess\ChessBoardModel\obj\Debug\net6.0\ref\ChessBoardModel.dll
