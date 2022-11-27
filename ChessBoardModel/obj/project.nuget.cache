@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "S447zVDAsPCvoDbTRrrLmwn10gf3SN5aWV46YyerObOGRnLCCZmAEAu3sdCOFSRZmLIzqbekKJ+tdzUQaDsWtg==",
+  "dgSpecHash": "/P3DVKXLkBsx0DfGBhS/fzZZt+Y5rlOqQjlLI1rfe4UFvhJuAzgUeBet3M5lr2R58jxJbKmAH8g30i3rMFlu4Q==",
   "success": true,
-  "projectFilePath": "C:\\Users\\jands\\source\\repos\\ChessBoard\\ChessBoardModel\\ChessBoardModel.csproj",
+  "projectFilePath": "C:\\Users\\jands\\Chess\\ChessBoardModel\\ChessBoardModel.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }

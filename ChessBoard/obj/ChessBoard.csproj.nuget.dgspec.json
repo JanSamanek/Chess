@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\jands\\source\\repos\\ChessBoard\\ChessBoard\\ChessBoard.csproj": {}
+    "C:\\Users\\jands\\Chess\\ChessBoard\\ChessBoard.csproj": {}
   },
   "projects": {
-    "C:\\Users\\jands\\source\\repos\\ChessBoard\\ChessBoardModel\\ChessBoardModel.csproj": {
+    "C:\\Users\\jands\\Chess\\ChessBoardModel\\ChessBoardModel.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\jands\\source\\repos\\ChessBoard\\ChessBoardModel\\ChessBoardModel.csproj",
+        "projectUniqueName": "C:\\Users\\jands\\Chess\\ChessBoardModel\\ChessBoardModel.csproj",
         "projectName": "ChessBoardModel",
-        "projectPath": "C:\\Users\\jands\\source\\repos\\ChessBoard\\ChessBoardModel\\ChessBoardModel.csproj",
+        "projectPath": "C:\\Users\\jands\\Chess\\ChessBoardModel\\ChessBoardModel.csproj",
         "packagesPath": "C:\\Users\\jands\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\jands\\source\\repos\\ChessBoard\\ChessBoardModel\\obj\\",
+        "outputPath": "C:\\Users\\jands\\Chess\\ChessBoardModel\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\jands\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -59,14 +59,14 @@
         }
       }
     },
-    "C:\\Users\\jands\\source\\repos\\ChessBoard\\ChessBoard\\ChessBoard.csproj": {
+    "C:\\Users\\jands\\Chess\\ChessBoard\\ChessBoard.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\jands\\source\\repos\\ChessBoard\\ChessBoard\\ChessBoard.csproj",
+        "projectUniqueName": "C:\\Users\\jands\\Chess\\ChessBoard\\ChessBoard.csproj",
         "projectName": "ChessBoard",
-        "projectPath": "C:\\Users\\jands\\source\\repos\\ChessBoard\\ChessBoard\\ChessBoard.csproj",
+        "projectPath": "C:\\Users\\jands\\Chess\\ChessBoard\\ChessBoard.csproj",
         "packagesPath": "C:\\Users\\jands\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\jands\\source\\repos\\ChessBoard\\ChessBoard\\obj\\",
+        "outputPath": "C:\\Users\\jands\\Chess\\ChessBoard\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\jands\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -83,8 +83,8 @@
           "net6.0": {
             "targetAlias": "net6.0",
             "projectReferences": {
-              "C:\\Users\\jands\\source\\repos\\ChessBoard\\ChessBoardModel\\ChessBoardModel.csproj": {
-                "projectPath": "C:\\Users\\jands\\source\\repos\\ChessBoard\\ChessBoardModel\\ChessBoardModel.csproj"
+              "C:\\Users\\jands\\Chess\\ChessBoardModel\\ChessBoardModel.csproj": {
+                "projectPath": "C:\\Users\\jands\\Chess\\ChessBoardModel\\ChessBoardModel.csproj"
               }
             }
           }
