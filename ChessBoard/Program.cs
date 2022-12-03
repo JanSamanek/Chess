@@ -1,6 +1,5 @@
 ﻿using ChessBoardModel;
 
-Board.setEmpty();
 Board.setPieces(Board.startPos);
 //Board.Grid[(int)Board.Coordinates.f3] = 7;
 Board.show();

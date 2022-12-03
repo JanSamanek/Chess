@@ -4,7 +4,7 @@
     {
         public static int[] Grid;
         public static string startPos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-        public static void setEmpty()
+        static void setEmpty()
         {
             Grid = new int[128];
 
@@ -29,6 +29,7 @@
 
         public static void setPieces(string fen)
         {
+            Board.setEmpty();
             FenParser.parse(fen);
         }
 
