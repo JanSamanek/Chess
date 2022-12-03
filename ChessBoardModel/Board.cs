@@ -61,30 +61,5 @@
                 Console.Write("\n");
             }
         }
-
-        /*static public bool isSquareAttacked(int square, int sideToPlay)
-        {
-            //knight 
-            for(int i =0; i < Pieces.Knigth.knight_offsets.Length; i++)
-            {
-                // where the knight should be, to be able to attack that square
-                int knightSquare = square + Pieces.Knigth.knight_offsets[i];
-
-                // first two bits (18 - hex) tell you if it's black or white, last three bits(7 - hex) the type
-                int pieceOnSquare = Board.Grid[knightSquare] & 0x7;
-                int sideOfPiece = Board.Grid[knightSquare] & 0x18;
-                
-                if(sideOfPiece != sideToPlay)
-                {
-                    continue;
-                }
-
-                if ((square & 0x88) == 0 && pieceOnSquare == Pieces.Knigth.value)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }*/
     }
 }
