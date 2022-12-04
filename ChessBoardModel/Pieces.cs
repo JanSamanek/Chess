@@ -2,7 +2,7 @@
 {
     public static class Pieces
     {
-
+        #region Pieces Init section
         public const int Empty = 0;
         public const int Pawn = 1;
         public const int Knight = 2;
@@ -26,5 +26,48 @@
             ['e'] = Empty,
             ['o'] = Border,
         };
+        #endregion
+
+        #region Move section
+        public struct Move
+        {
+            public readonly int originSquare;
+            public readonly int targetSquare;
+
+            public Move(int originSquare, int targetSquare)
+            {
+                this.originSquare = originSquare;
+                this.targetSquare = targetSquare;
+            }
+        }
+
+        public static List<Move> GenerateMoves()
+        {
+            List<Move> moves = new List<Move>();
+
+            for (int rank = 0; rank < 8; rank++)
+            {
+                for (int file = 0; file < 16; file++)
+                {
+                    int originSquare = rank * 16 + file;
+
+                    // if square is on chessbaord
+                    if ((originSquare & 0x88) == 0)
+                    {
+                        int piece = Board.Grid[originSquare];
+
+                        if(piece == (Knight | Board.SideToPlay))
+                        {
+                            Console.WriteLine("Knight " + originSquare);
+                        }
+                    }
+                }
+            }
+
+            return moves;
+        }
+
+        #endregion
+
     }
 }
