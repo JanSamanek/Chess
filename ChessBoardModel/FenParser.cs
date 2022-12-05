@@ -25,7 +25,7 @@
                     }
                     else
                     {
-                        int pieceType = Pieces.piecesToSymbols[char.ToLower(value)];
+                        int pieceType = Pieces.SymbolsToPieces[char.ToLower(value)];
                         int pieceColor = char.IsUpper(value) ? Pieces.White : Pieces.Black;
                         int square = rank * 16 + file;
                         Board.Grid[square] = pieceType | pieceColor;

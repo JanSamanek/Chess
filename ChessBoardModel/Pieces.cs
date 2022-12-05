@@ -3,32 +3,28 @@
     public static class Pieces
     {
         #region Pieces Init section
-        public const int Empty = 0;
-        public const int Pawn = 1;
-        public const int Knight = 2;
-        public const int Bishop = 3;
-        public const int Rook = 4;
-        public const int Queen = 5;
-        public const int King = 6;
-        public const int Border = 7;
+        const int Empty = 0;
+        const int Pawn = 1;
+        const int Knight = 2;
+        const int Bishop = 3;
+        const int Rook = 4;
+        const int Queen = 5;
+        const int King = 6;
+        const int Border = 7;
 
         public const int White = 8;
         public const int Black = 16;
 
-        public static Dictionary<char, int> piecesToSymbols = new Dictionary<char, int>()
+        public static readonly Dictionary<char, int> SymbolsToPieces = new Dictionary<char, int>()
         {
-            ['p'] = Pawn,
-            ['n'] = Knight,
-            ['b'] = Bishop,
-            ['r'] = Rook,
-            ['q'] = Queen,
-            ['k'] = King,
-            ['e'] = Empty,
-            ['o'] = Border,
+            ['p'] = Pawn, ['n'] = Knight, ['b'] = Bishop, ['r'] = Rook, 
+            ['q'] = Queen, ['k'] = King, ['e'] = Empty, ['o'] = Border
         };
         #endregion
 
         #region Move section
+        static readonly int[] DirOffsets = {16, -16, 1, -1, 15, -15, 17, -17 };
+        static readonly int[] KnightOffsets = { 33, 31, 18, 14, -33, -31, -18, -14 };
         public struct Move
         {
             public readonly int originSquare;
@@ -56,10 +52,33 @@
                     {
                         int piece = Board.Grid[originSquare];
 
-                        if(piece == (Knight | Board.SideToPlay))
+                        #region Knight Moves
+                        if (piece == (Knight | Board.SideToPlay))
                         {
-                            Console.WriteLine("Knight " + originSquare);
+                            foreach(int offset in KnightOffsets)
+                            {
+                                int targetSquare = originSquare + offset;
+                                if((targetSquare & 0x88) == 0)
+                                    moves.Add(new Move(originSquare, targetSquare));
+                            }
                         }
+                        #endregion
+
+                        #region Queen Moves
+                        if (piece == (Queen | Board.SideToPlay))
+                        {
+                            foreach(int offset in DirOffsets)
+                            {
+                                int targetSquare = originSquare + offset;
+                                while((targetSquare & 0x88) == 0)
+                                {
+                                    moves.Add(new Move(originSquare, targetSquare));
+                                    targetSquare += offset;
+                                }
+
+                            }
+                        }
+                        #endregion
                     }
                 }
             }

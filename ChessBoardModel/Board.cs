@@ -2,8 +2,9 @@
 {
     public static class Board
     {
-        public static int[] Grid;
+        public static int[] Grid = new int[128];
         public const string startPos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+        public static int SideToPlay = Pieces.White;  //TODO: make sides to play not static
         public enum Coordinates
         {
             a1, b1, c1, d1, e1, f1, g1, h1, i1, j1, k1, l1, m1, n1, o1, p1,
@@ -16,11 +17,8 @@
             a8, b8, c8, d8, e8, f8, g8, h8, i8, j8, k8, l8, m8, n8, o8, p8,
         };
 
-        public static int SideToPlay = Pieces.White;  //TODO: make sides to play not static
         static void SetEmpty()
         {
-            Grid = new int[128];
-
             for (int rank = 0; rank < 8; rank++)
             {
                 for (int file = 0; file < 16; file++)
@@ -30,11 +28,11 @@
                     // if square is on chessbaord
                     if ((square & 0x88) == 0)
                     {
-                        Grid[square] = Pieces.piecesToSymbols['e'];
+                        Grid[square] = Pieces.SymbolsToPieces['e'];
                     }
                     else
                     {
-                        Grid[square] = Pieces.piecesToSymbols['o'];
+                        Grid[square] = Pieces.SymbolsToPieces['o'];
                     }
                 }
             }
