@@ -72,8 +72,20 @@
                                 int targetSquare = originSquare + offset;
                                 while((targetSquare & 0x88) == 0)
                                 {
-                                    moves.Add(new Move(originSquare, targetSquare));
-                                    targetSquare += offset;
+                                    int squareValue = Board.Grid[targetSquare];
+                                    if (squareValue == Empty)
+                                    {
+                                        moves.Add(new Move(originSquare, targetSquare));
+                                        targetSquare += offset;
+                                    }
+                                    //if on the target square is a piece of opposite color
+                                    else if((squareValue & 0x18) != Board.SideToPlay)
+                                    {
+                                        moves.Add(new Move(originSquare, targetSquare));
+                                        break;
+                                    }
+                                    else if ((squareValue & 0x18) == Board.SideToPlay)
+                                        break;
                                 }
 
                             }
