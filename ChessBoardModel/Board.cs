@@ -76,7 +76,7 @@
             }
         }
 
-        static void GenerateMovesForSquare(int originSquare, List<Move> moveList)
+        static IEnumerable<Move> GenerateMovesForSquare(int originSquare)
         {
             int piece = Board.Grid[originSquare];
 
@@ -87,7 +87,7 @@
                 {
                     int targetSquare = originSquare + offset;
                     if ((targetSquare & 0x88) == 0)
-                        moveList.Add(new Move(originSquare, targetSquare));
+                        yield return new Move(originSquare, targetSquare);
                 }
             }
             #endregion
@@ -103,13 +103,13 @@
                         int squareValue = Board.Grid[targetSquare];
                         if (squareValue == Pieces.Empty)
                         {
-                            moveList.Add(new Move(originSquare, targetSquare));
+                            yield return new Move(originSquare, targetSquare);
                             targetSquare += dirOffset;
                         }
                         //on target square is a piece of opposite color
                         else if ((squareValue & 0x18) != Board.SideToPlay)
                         {
-                            moveList.Add(new Move(originSquare, targetSquare));
+                            yield return new Move(originSquare, targetSquare);
                             break;
                         }
                         //on target square is a piece of the same color
@@ -135,7 +135,8 @@
                     // if square is on chessbaord
                     if ((originSquare & 0x88) == 0)
                     {
-                        GenerateMovesForSquare(originSquare, moves);
+                        foreach(Move move in GenerateMovesForSquare(originSquare))
+                            moves.Add(move);
                     }
                 }
             }
