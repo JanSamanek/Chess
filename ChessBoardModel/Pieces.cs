@@ -1,4 +1,6 @@
-﻿namespace ChessBoardModel
+﻿using static ChessBoardModel.Pieces;
+
+namespace ChessBoardModel
 {
     public static class Pieces
     {
@@ -37,7 +39,53 @@
             }
         }
 
-        public static List<Move> GenerateMoves()
+        static void GenerateMovesForSquare(int originSquare, List<Move> moveList)
+        {
+            int piece = Board.Grid[originSquare];
+
+            #region Knight Moves
+            if (piece == (Knight | Board.SideToPlay))
+            {
+                foreach (int offset in KnightOffsets)
+                {
+                    int targetSquare = originSquare + offset;
+                    if ((targetSquare & 0x88) == 0)
+                        moveList.Add(new Move(originSquare, targetSquare));
+                }
+            }
+            #endregion
+
+            #region Queen Moves
+            if (piece == (Queen | Board.SideToPlay))
+            {
+                foreach (int offset in DirOffsets)
+                {
+                    int targetSquare = originSquare + offset;
+                    while ((targetSquare & 0x88) == 0)
+                    {
+                        int squareValue = Board.Grid[targetSquare];
+                        if (squareValue == Empty)
+                        {
+                            moveList.Add(new Move(originSquare, targetSquare));
+                            targetSquare += offset;
+                        }
+                        //on target square is a piece of opposite color
+                        else if ((squareValue & 0x18) != Board.SideToPlay)
+                        {
+                            moveList.Add(new Move(originSquare, targetSquare));
+                            break;
+                        }
+                        //on target square is a piece of the same color
+                        else if ((squareValue & 0x18) == Board.SideToPlay)
+                            break;
+                    }
+
+                }
+            }
+            #endregion
+        }
+
+        public static List<Move> GenerateMovesForBoard()
         {
             List<Move> moves = new List<Move>();
 
@@ -50,55 +98,13 @@
                     // if square is on chessbaord
                     if ((originSquare & 0x88) == 0)
                     {
-                        int piece = Board.Grid[originSquare];
-
-                        #region Knight Moves
-                        if (piece == (Knight | Board.SideToPlay))
-                        {
-                            foreach(int offset in KnightOffsets)
-                            {
-                                int targetSquare = originSquare + offset;
-                                if((targetSquare & 0x88) == 0)
-                                    moves.Add(new Move(originSquare, targetSquare));
-                            }
-                        }
-                        #endregion
-
-                        #region Queen Moves
-                        if (piece == (Queen | Board.SideToPlay))
-                        {
-                            foreach(int offset in DirOffsets)
-                            {
-                                int targetSquare = originSquare + offset;
-                                while((targetSquare & 0x88) == 0)
-                                {
-                                    int squareValue = Board.Grid[targetSquare];
-                                    if (squareValue == Empty)
-                                    {
-                                        moves.Add(new Move(originSquare, targetSquare));
-                                        targetSquare += offset;
-                                    }
-                                    //if on the target square is a piece of opposite color
-                                    else if((squareValue & 0x18) != Board.SideToPlay)
-                                    {
-                                        moves.Add(new Move(originSquare, targetSquare));
-                                        break;
-                                    }
-                                    else if ((squareValue & 0x18) == Board.SideToPlay)
-                                        break;
-                                }
-
-                            }
-                        }
-                        #endregion
+                        Pieces.GenerateMovesForSquare(originSquare, moves);
                     }
                 }
             }
 
             return moves;
         }
-
-        #endregion
-
+    #endregion
     }
 }
