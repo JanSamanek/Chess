@@ -1,4 +1,6 @@
-﻿namespace ChessBoardModel
+﻿using System.CodeDom.Compiler;
+
+namespace ChessBoardModel
 {
     public static class Board
     {
@@ -37,14 +39,11 @@
                 }
             }
         }
-
         public static void SetPieces(string fen)
         {
             Board.SetEmpty();
             FenParser.parse(fen);
         }
-
-
         public static void Show()
         {
             for (int rank = 7; rank >= 0; rank--)
@@ -76,50 +75,70 @@
             }
         }
 
+        static IEnumerable<Move> GenerateSlidingMoves(int originSquare, int piece)
+        {
+            //get the coresponding dir offsets for piece
+            int startIndex = piece == Pieces.Bishop ? 4 : 0;
+            int endIndex = piece == Pieces.Rook ? 4 : 8;
+                    
+            foreach (int dirOffset in Pieces.DirOffsets[startIndex..endIndex])
+            {
+                int targetSquare = originSquare + dirOffset;
+                while ((targetSquare & 0x88) == 0)
+                {
+                    int squareValue = Grid[targetSquare];
+                    if (squareValue == Pieces.Empty)
+                    {
+                        yield return new Move(originSquare, targetSquare);
+                        targetSquare += dirOffset;
+                    }
+                    //on target square is a piece of opposite color
+                    else if ((squareValue & 0x18) != SideToPlay)
+                    {
+                        yield return new Move(originSquare, targetSquare);
+                        break;
+                    }
+                    //on target square is a piece of the same color
+                    else if ((squareValue & 0x18) == SideToPlay)
+                        break;
+                }
+            }
+        }
+
+        static IEnumerable<Move> GenerateKnightMoves(int originSquare)
+        {
+            foreach (int offset in Pieces.KnightOffsets)
+            {
+                int targetSquare = originSquare + offset;
+                if ((targetSquare & 0x88) == 0)
+                    yield return new Move(originSquare, targetSquare);
+            }
+        }
         static IEnumerable<Move> GenerateMovesForSquare(int originSquare)
         {
             int piece = Board.Grid[originSquare];
 
-            #region Knight Moves
             if (piece == (Pieces.Knight | Board.SideToPlay))
             {
-                foreach (int offset in Pieces.KnightOffsets)
-                {
-                    int targetSquare = originSquare + offset;
-                    if ((targetSquare & 0x88) == 0)
-                        yield return new Move(originSquare, targetSquare);
-                }
+                return GenerateKnightMoves(originSquare);
             }
-            #endregion
-
-            #region Queen Moves
-            if (piece == (Pieces.Queen | Board.SideToPlay))
+            else if (piece == (Pieces.Queen | Board.SideToPlay))
             {
-                foreach (int dirOffset in Pieces.DirOffsets)
-                {
-                    int targetSquare = originSquare + dirOffset;
-                    while ((targetSquare & 0x88) == 0)
-                    {
-                        int squareValue = Board.Grid[targetSquare];
-                        if (squareValue == Pieces.Empty)
-                        {
-                            yield return new Move(originSquare, targetSquare);
-                            targetSquare += dirOffset;
-                        }
-                        //on target square is a piece of opposite color
-                        else if ((squareValue & 0x18) != Board.SideToPlay)
-                        {
-                            yield return new Move(originSquare, targetSquare);
-                            break;
-                        }
-                        //on target square is a piece of the same color
-                        else if ((squareValue & 0x18) == Board.SideToPlay)
-                            break;
-                    }
-
-                }
+                return GenerateSlidingMoves(originSquare, Pieces.Queen);
             }
-            #endregion
+            else if(piece == (Pieces.Bishop| Board.SideToPlay))
+            {
+                return GenerateSlidingMoves(originSquare, Pieces.Bishop);
+            }
+            else if(piece ==(Pieces.Rook | Board.SideToPlay))
+            {
+                return GenerateSlidingMoves(originSquare, Pieces.Rook);
+            }
+            else
+            {
+                IEnumerable<Move> empty = Enumerable.Empty<Move>();
+                return empty;
+            }
         }
 
         public static List<Move> GenerateMovesForBoard()
