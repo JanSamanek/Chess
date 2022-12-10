@@ -21,7 +21,8 @@ namespace ChessBoardModel
         public static readonly int[] KnightOffsets = { 33, 31, 18, 14, -33, -31, -18, -14 };
         public static readonly int[] PawnAttacks = { 15, 17 };
         public static readonly int Foward = 16;
-
+        public static readonly string[] unicodeWhitePieces = { ".", "♙", "♘", "♗", "♖", "♕", "♔" };
+        public static readonly string[] unicodeBlackPieces = { ".", "♟", "♞", "♝", "♜", "♛", "♚" };
         public static readonly Dictionary<char, int> SymbolsToPieces = new Dictionary<char, int>()
         {
             ['p'] = Pawn, ['n'] = Knight, ['b'] = Bishop, ['r'] = Rook, 
@@ -29,6 +30,7 @@ namespace ChessBoardModel
         };
         #endregion
 
-        public static int getPieceColor(int piece) => piece & 0x18;
+        public static int GetPieceColor(int piece) => piece & 0x18;
+        public static int GetPieceValue(int piece) => piece & 0x7;
     }
 }

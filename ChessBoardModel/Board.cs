@@ -47,6 +47,7 @@ namespace ChessBoardModel
         }
         public static void Show()
         {
+            Console.OutputEncoding = System.Text.Encoding.Unicode;
             for (int rank = 7; rank >= 0; rank--)
             {
                 for (int file = 0; file < 16; file++)
@@ -56,7 +57,10 @@ namespace ChessBoardModel
                     // if square is on chessbaord
                     if ((square & 0x88) == 0)
                     {
-                        Console.Write($"{Grid[square], -3}");
+                        int piece = Grid[square];
+                        int pieceValue = Pieces.GetPieceValue(piece);
+                        string[] unicode = Pieces.GetPieceColor(piece) == Pieces.White ? Pieces.unicodeWhitePieces : Pieces.unicodeBlackPieces;
+                        Console.Write($"{unicode[pieceValue], -3}");
                     }
                 }
                 Console.Write("\n");
@@ -93,13 +97,13 @@ namespace ChessBoardModel
                         targetSquare += dirOffset;
                     }
                     //on target square is a piece of opposite color
-                    else if (Pieces.getPieceColor(pieceOnSquare) != SideToPlay)
+                    else if (Pieces.GetPieceColor(pieceOnSquare) != SideToPlay)
                     {
                         yield return new Move(originSquare, targetSquare);
                         break;
                     }
                     //on target square is a piece of the same color
-                    else if (Pieces.getPieceColor(pieceOnSquare) == SideToPlay)
+                    else if (Pieces.GetPieceColor(pieceOnSquare) == SideToPlay)
                         break;
                 }
             }
@@ -109,8 +113,13 @@ namespace ChessBoardModel
             foreach (int offset in Pieces.KnightOffsets)
             {
                 int targetSquare = originSquare + offset;
+                //if target square is on chessboard and is not a friendly piece
                 if ((targetSquare & 0x88) == 0)
-                    yield return new Move(originSquare, targetSquare);
+                {
+                    int pieceOnSquare = Grid[targetSquare];
+                    if (Pieces.GetPieceColor(pieceOnSquare) != SideToPlay)
+                        yield return new Move(originSquare, targetSquare);
+                }
             }
         }
         static IEnumerable<Move> GeneratePawnMoves(int originSquare)
@@ -128,7 +137,7 @@ namespace ChessBoardModel
                 targetSquare = originSquare + attackOffset * dir;
                 pieceOnAttackSquare= Grid[targetSquare];
 
-                int colorOfPiece = Pieces.getPieceColor(pieceOnAttackSquare);
+                int colorOfPiece = Pieces.GetPieceColor(pieceOnAttackSquare);
                 if (colorOfPiece == SideWaiting)
                 {
                     yield return new Move(originSquare, targetSquare);
