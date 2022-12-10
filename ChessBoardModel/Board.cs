@@ -6,7 +6,8 @@ namespace ChessBoardModel
     {
         public static int[] Grid = new int[128];
         public const string startPos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-        public static int SideToPlay = Pieces.White;  //TODO: make sides to play not static
+        public static int SideToPlay = Pieces.Black;  //TODO: make sides to play not static
+        public static int SideWaiting = SideToPlay^0x18;
         public enum Coordinates
         {
             a1, b1, c1, d1, e1, f1, g1, h1, i1, j1, k1, l1, m1, n1, o1, p1,
@@ -18,7 +19,7 @@ namespace ChessBoardModel
             a7, b7, c7, d7, e7, f7, g7, h7, i7, j7, k7, l7, m7, n7, o7, p7,
             a8, b8, c8, d8, e8, f8, g8, h8, i8, j8, k8, l8, m8, n8, o8, p8,
         };
-
+        
         static void SetEmpty()
         {
             for (int rank = 0; rank < 8; rank++)
@@ -74,7 +75,6 @@ namespace ChessBoardModel
                 this.targetSquare = targetSquare;
             }
         }
-
         static IEnumerable<Move> GenerateSlidingMoves(int originSquare, int piece)
         {
             //get the coresponding dir offsets for piece
@@ -86,25 +86,24 @@ namespace ChessBoardModel
                 int targetSquare = originSquare + dirOffset;
                 while ((targetSquare & 0x88) == 0)
                 {
-                    int squareValue = Grid[targetSquare];
-                    if (squareValue == Pieces.Empty)
+                    int pieceOnSquare = Grid[targetSquare];
+                    if (pieceOnSquare == Pieces.Empty)
                     {
                         yield return new Move(originSquare, targetSquare);
                         targetSquare += dirOffset;
                     }
                     //on target square is a piece of opposite color
-                    else if ((squareValue & 0x18) != SideToPlay)
+                    else if (Pieces.getPieceColor(pieceOnSquare) != SideToPlay)
                     {
                         yield return new Move(originSquare, targetSquare);
                         break;
                     }
                     //on target square is a piece of the same color
-                    else if ((squareValue & 0x18) == SideToPlay)
+                    else if (Pieces.getPieceColor(pieceOnSquare) == SideToPlay)
                         break;
                 }
             }
         }
-
         static IEnumerable<Move> GenerateKnightMoves(int originSquare)
         {
             foreach (int offset in Pieces.KnightOffsets)
@@ -112,6 +111,28 @@ namespace ChessBoardModel
                 int targetSquare = originSquare + offset;
                 if ((targetSquare & 0x88) == 0)
                     yield return new Move(originSquare, targetSquare);
+            }
+        }
+        static IEnumerable<Move> GeneratePawnMoves(int originSquare)
+        {
+            int dir = SideToPlay == Pieces.White ? 1 : -1;
+
+            int targetSquare = originSquare + dir * Pieces.Foward;
+            int pieceOnAttackSquare = Grid[targetSquare];
+
+            if (pieceOnAttackSquare == Pieces.Empty)
+                yield return new Move(originSquare, originSquare + dir * Pieces.Foward);
+
+            foreach(int attackOffset in Pieces.PawnAttacks)
+            {
+                targetSquare = originSquare + attackOffset * dir;
+                pieceOnAttackSquare= Grid[targetSquare];
+
+                int colorOfPiece = Pieces.getPieceColor(pieceOnAttackSquare);
+                if (colorOfPiece == SideWaiting)
+                {
+                    yield return new Move(originSquare, targetSquare);
+                }
             }
         }
         static IEnumerable<Move> GenerateMovesForSquare(int originSquare)
@@ -134,13 +155,16 @@ namespace ChessBoardModel
             {
                 return GenerateSlidingMoves(originSquare, Pieces.Rook);
             }
+            else if(piece == (Pieces.Pawn | Board.SideToPlay))
+            {
+                return GeneratePawnMoves(originSquare);
+            }
             else
             {
                 IEnumerable<Move> empty = Enumerable.Empty<Move>();
                 return empty;
             }
         }
-
         public static List<Move> GenerateMovesForBoard()
         {
             List<Move> moves = new List<Move>();
@@ -159,7 +183,6 @@ namespace ChessBoardModel
                     }
                 }
             }
-
             return moves;
         }
         #endregion

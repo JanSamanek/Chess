@@ -19,6 +19,8 @@ namespace ChessBoardModel
 
         public static readonly int[] DirOffsets = { 16, -16, 1, -1, 15, -15, 17, -17 };
         public static readonly int[] KnightOffsets = { 33, 31, 18, 14, -33, -31, -18, -14 };
+        public static readonly int[] PawnAttacks = { 15, 17 };
+        public static readonly int Foward = 16;
 
         public static readonly Dictionary<char, int> SymbolsToPieces = new Dictionary<char, int>()
         {
@@ -27,6 +29,6 @@ namespace ChessBoardModel
         };
         #endregion
 
-       
+        public static int getPieceColor(int piece) => piece & 0x18;
     }
 }
