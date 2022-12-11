@@ -1,14 +1,13 @@
 ﻿using ChessBoardModel;
 
-Board.SetPieces(Board.startPos);
+Board.SetPieces("8/8/8/3Qb3/3K4/8/8/8 w - - 0 1");
 //Board.Grid[(int)Board.Coordinates.a1] = 10;
-List<Board.Move> moves = Board.GenerateMovesForBoard();
-foreach(Board.Move move in moves)
+List<MoveManager.Move> moves = MoveManager.GenerateMovesForBoard();
+foreach(MoveManager.Move move in moves)
 {
-    Board.Grid[move.targetSquare] = Board.Grid[move.originSquare];
-    Board.Grid[move.originSquare] = Pieces.Empty;
+    MoveManager.MakeMove(move);
     Board.Show();
     Thread.Sleep(1000);
-    Board.SetPieces(Board.startPos);
+    Board.SetPieces("8/8/8/3Qb3/3K4/8/8/8 w - - 0 1");
     Console.Clear();
 }
