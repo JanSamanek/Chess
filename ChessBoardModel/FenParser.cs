@@ -5,7 +5,11 @@
     {
         public static void parse(string fen)
         {
-            string fenBoard = fen.Split(" ")[0];
+            string[] fenSplit = fen.Split(" ");
+            string fenBoard = fenSplit[0];
+            string sideToMove = fenSplit[1];
+
+            Board.SideToMove = sideToMove == "w" ? Pieces.White: Pieces.Black;
 
             int rank = 7;
             int file = 0;

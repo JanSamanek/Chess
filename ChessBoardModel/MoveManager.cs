@@ -38,13 +38,13 @@ namespace ChessBoardModel
                         targetSquare += dirOffset;
                     }
                     //on target square is a piece of opposite color
-                    else if (Pieces.GetPieceColor(pieceOnSquare) != Board.SideToPlay)
+                    else if (Pieces.GetPieceColor(pieceOnSquare) != Board.SideToMove)
                     {
                         yield return new Move(originSquare, targetSquare);
                         break;
                     }
                     //on target square is a piece of the same color
-                    else if (Pieces.GetPieceColor(pieceOnSquare) == Board.SideToPlay)
+                    else if (Pieces.GetPieceColor(pieceOnSquare) == Board.SideToMove)
                         break;
                 }
             }
@@ -57,7 +57,7 @@ namespace ChessBoardModel
                 if ((targetSquare & 0x88) == 0)
                 {
                     int pieceOnSquare = Board.Grid[targetSquare];
-                    if(Pieces.GetPieceColor(pieceOnSquare) != Board.SideToPlay)
+                    if(Pieces.GetPieceColor(pieceOnSquare) != Board.SideToMove)
                     {
                         yield return new Move(originSquare, targetSquare);
                     }
@@ -73,27 +73,41 @@ namespace ChessBoardModel
                 if ((targetSquare & 0x88) == 0)
                 {
                     int pieceOnSquare = Board.Grid[targetSquare];
-                    if (Pieces.GetPieceColor(pieceOnSquare) != Board.SideToPlay)
+                    if (Pieces.GetPieceColor(pieceOnSquare) != Board.SideToMove)
                         yield return new Move(originSquare, targetSquare);
                 }
             }
         }
         static IEnumerable<Move> GeneratePawnMoves(int originSquare)
         {
-            int dir = Board.SideToPlay == Pieces.White ? 1 : -1;
+            int dir = Board.SideToMove == Pieces.White ? 1 : -1;
+            int pawnColor = Pieces.GetPieceColor(Board.Grid[originSquare]);
+            int rank = Board.GetRank(originSquare);
 
-            int targetSquare = originSquare + dir * Pieces.Foward;
-            int pieceOnAttackSquare = Board.Grid[targetSquare];
+            int targetSquare = originSquare + 2 * dir * Pieces.Foward;
+            int pieceOnTargetSquare = Board.Grid[targetSquare];
 
-            if (pieceOnAttackSquare == Pieces.Empty)
-                yield return new Move(originSquare, originSquare + dir * Pieces.Foward);
+            if (pawnColor == Pieces.White && rank == 1 && pieceOnTargetSquare == Pieces.Empty)
+            {
+                yield return new Move(originSquare, targetSquare);
+            }
+            else if (pawnColor == Pieces.Black && rank == 6 && pieceOnTargetSquare == Pieces.Empty)
+            {
+                yield return new Move(originSquare, targetSquare);
+            }
+
+            targetSquare = originSquare + dir * Pieces.Foward;
+            pieceOnTargetSquare = Board.Grid[targetSquare];
+
+            if (pieceOnTargetSquare == Pieces.Empty)
+                yield return new Move(originSquare, targetSquare);
 
             foreach (int attackOffset in Pieces.PawnAttacks)
             {
                 targetSquare = originSquare + attackOffset * dir;
-                pieceOnAttackSquare = Board.Grid[targetSquare];
+                pieceOnTargetSquare = Board.Grid[targetSquare];
 
-                int colorOfPiece = Pieces.GetPieceColor(pieceOnAttackSquare);
+                int colorOfPiece = Pieces.GetPieceColor(pieceOnTargetSquare);
                 if (colorOfPiece == Board.SideWaiting)
                 {
                     yield return new Move(originSquare, targetSquare);
@@ -104,27 +118,27 @@ namespace ChessBoardModel
         {
             int piece = Board.Grid[originSquare];
 
-            if (piece == (Pieces.Knight | Board.SideToPlay))
+            if (piece == (Pieces.Knight | Board.SideToMove))
             {
                 return GenerateKnightMoves(originSquare);
             }
-            else if (piece == (Pieces.Queen | Board.SideToPlay))
+            else if (piece == (Pieces.Queen | Board.SideToMove))
             {
                 return GenerateSlidingMoves(originSquare, Pieces.Queen);
             }
-            else if (piece == (Pieces.Bishop | Board.SideToPlay))
+            else if (piece == (Pieces.Bishop | Board.SideToMove))
             {
                 return GenerateSlidingMoves(originSquare, Pieces.Bishop);
             }
-            else if (piece == (Pieces.Rook | Board.SideToPlay))
+            else if (piece == (Pieces.Rook | Board.SideToMove))
             {
                 return GenerateSlidingMoves(originSquare, Pieces.Rook);
             }
-            else if (piece == (Pieces.Pawn | Board.SideToPlay))
+            else if (piece == (Pieces.Pawn | Board.SideToMove))
             {
                 return GeneratePawnMoves(originSquare);
             }
-            else if(piece == (Pieces.King | Board.SideToPlay))
+            else if(piece == (Pieces.King | Board.SideToMove))
             {
                 return GenerateKingMoves(originSquare);
             }
