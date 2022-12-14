@@ -10,6 +10,7 @@
             string sideToMove = fenSplit[1];
 
             Board.SideToMove = sideToMove == "w" ? Pieces.White: Pieces.Black;
+            Board.SideWaiting = Board.SideToMove ^ 0x18;
 
             int rank = 7;
             int file = 0;

@@ -1,10 +1,11 @@
-﻿using System.Xml.Serialization;
-
-namespace ChessBoardModel
+﻿namespace ChessBoardModel
 {
     public static class MoveManager
     {
-        public struct Move
+        //KS - king side, QS - queen side
+        enum CastlingTypes {KSCastlingWhite = 8, QSCastlingWhite = 4, KSCastlingBlack = 2, QSCastlingBlack = 1};
+        static int CastlingAvailability = 0b1111;
+        public readonly struct Move
         {
             public readonly int originSquare;
             public readonly int targetSquare;
@@ -51,10 +52,11 @@ namespace ChessBoardModel
         }
         static IEnumerable<Move> GenerateKingMoves(int originSquare)
         {
+            List<int> attackedSquares = GetAttackedSquares();
             foreach(int offset in Pieces.DirOffsets)
             {
                 int targetSquare = originSquare + offset;
-                if ((targetSquare & 0x88) == 0)
+                if ((targetSquare & 0x88) == 0 && !attackedSquares.Contains(targetSquare))
                 {
                     int pieceOnSquare = Board.Grid[targetSquare];
                     if(Pieces.GetPieceColor(pieceOnSquare) != Board.SideToMove)
@@ -62,7 +64,13 @@ namespace ChessBoardModel
                         yield return new Move(originSquare, targetSquare);
                     }
                 }
+
             }
+
+            /*if(originSquare == (int) Board.Coordinates.e8 && Board.SideToMove == Pieces.White)
+            {
+                if (Board.Grid[Board.Coordinates.f8])
+            }*/
         }
         static IEnumerable<Move> GenerateKnightMoves(int originSquare)
         {
@@ -114,31 +122,31 @@ namespace ChessBoardModel
                 }
             }
         }
-        static IEnumerable<Move> GenerateMovesForSquare(int originSquare)
+        static IEnumerable<Move> GenerateMovesForSquare(int originSquare, int color)
         {
             int piece = Board.Grid[originSquare];
 
-            if (piece == (Pieces.Knight | Board.SideToMove))
+            if (piece == (Pieces.Knight | color))
             {
                 return GenerateKnightMoves(originSquare);
             }
-            else if (piece == (Pieces.Queen | Board.SideToMove))
+            else if (piece == (Pieces.Queen | color))
             {
                 return GenerateSlidingMoves(originSquare, Pieces.Queen);
             }
-            else if (piece == (Pieces.Bishop | Board.SideToMove))
+            else if (piece == (Pieces.Bishop | color))
             {
                 return GenerateSlidingMoves(originSquare, Pieces.Bishop);
             }
-            else if (piece == (Pieces.Rook | Board.SideToMove))
+            else if (piece == (Pieces.Rook | color))
             {
                 return GenerateSlidingMoves(originSquare, Pieces.Rook);
-            }
-            else if (piece == (Pieces.Pawn | Board.SideToMove))
+            }   
+            else if (piece == (Pieces.Pawn | color))
             {
                 return GeneratePawnMoves(originSquare);
             }
-            else if(piece == (Pieces.King | Board.SideToMove))
+            else if(piece == (Pieces.King | color))
             {
                 return GenerateKingMoves(originSquare);
             }
@@ -148,7 +156,7 @@ namespace ChessBoardModel
                 return empty;
             }
         }
-        public static List<Move> GenerateMovesForBoard()
+        public static List<Move> GetMovesForBoard(int color)
         {
             List<Move> moves = new List<Move>();
 
@@ -161,12 +169,26 @@ namespace ChessBoardModel
                     // if square is on chessbaord
                     if ((originSquare & 0x88) == 0)
                     {
-                        foreach (Move move in GenerateMovesForSquare(originSquare))
+                        foreach (Move move in GenerateMovesForSquare(originSquare, color))
                             moves.Add(move);
                     }
                 }
             }
             return moves;
+        }
+        static List<int> GetAttackedSquares()
+        {
+            List<int> attackedSquares = new List<int>();
+            foreach(Move move in GetMovesForBoard(Board.SideWaiting))
+            {
+                attackedSquares.Add(move.targetSquare);
+            }
+            return attackedSquares;
+        }
+
+        public static List<Move> GetLegalMoves()
+        {
+            return GetMovesForBoard(Board.SideToMove);
         }
     }
 }
