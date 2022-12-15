@@ -2,19 +2,20 @@
 {
     public static class MoveManager
     {
-        //KS - king side, QS - queen side
         enum CastlingType { KSWhite = 8, QSWhite = 4, KSBlack = 2, QSBlack = 1 };
         static int Castling = 0b1111;
-     
+        
         static bool IsCastlingLegal(CastlingType type)
         {
             if((Castling & (int) type) != 0)
             {
+                List<int> attackedSquares = GetAttackedSquares();   // is it possible to calc attacked squares only once?
                 switch (type)
                 {
                     case CastlingType.KSWhite:
                         if (Board.Grid[(int) Board.Coordinate.f1] == Pieces.Empty && Board.Grid[(int) Board.Coordinate.g1] == Pieces.Empty)
                         {
+                            if(!attackedSquares.Contains((int) Board.Coordinate.f1) && !attackedSquares.Contains((int)Board.Coordinate.g1))
                             return true;
                         }
                         break;
@@ -22,21 +23,24 @@
                     case CastlingType.QSWhite:
                         if (Board.Grid[(int)Board.Coordinate.d1] == Pieces.Empty && Board.Grid[(int)Board.Coordinate.c1] == Pieces.Empty)
                         {
-                            return true;
+                            if (!attackedSquares.Contains((int)Board.Coordinate.d1) && !attackedSquares.Contains((int)Board.Coordinate.c1))
+                                return true;
                         }
                         break;
                         
                     case CastlingType.KSBlack:
                         if (Board.Grid[(int)Board.Coordinate.f8] == Pieces.Empty && Board.Grid[(int)Board.Coordinate.g8] == Pieces.Empty)
                         {
-                            return true;
+                            if (!attackedSquares.Contains((int)Board.Coordinate.f8) && !attackedSquares.Contains((int)Board.Coordinate.g8))
+                                return true;
                         }
                         break; 
 
                     case CastlingType.QSBlack:
                         if (Board.Grid[(int)Board.Coordinate.d8] == Pieces.Empty && Board.Grid[(int)Board.Coordinate.c8] == Pieces.Empty)
                         {
-                            return true;
+                            if (!attackedSquares.Contains((int)Board.Coordinate.d8) && !attackedSquares.Contains((int)Board.Coordinate.d8))
+                                return true;
                         }
                         break;
                 }
@@ -103,7 +107,6 @@
                     }
                 }
             }
-
         }
         static IEnumerable<Move> GenerateKnightMoves(int originSquare)
         {
@@ -218,7 +221,6 @@
             }
             return attackedSquares;
         }
-
         public static List<Move> GetLegalMoves()
         {
             return GetMovesForBoard(Board.SideToMove);
