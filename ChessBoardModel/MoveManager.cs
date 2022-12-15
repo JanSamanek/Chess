@@ -3,8 +3,46 @@
     public static class MoveManager
     {
         //KS - king side, QS - queen side
-        enum CastlingTypes {KSCastlingWhite = 8, QSCastlingWhite = 4, KSCastlingBlack = 2, QSCastlingBlack = 1};
-        static int CastlingAvailability = 0b1111;
+        enum CastlingType { KSWhite = 8, QSWhite = 4, KSBlack = 2, QSBlack = 1 };
+        static int Castling = 0b1111;
+     
+        static bool IsCastlingLegal(CastlingType type)
+        {
+            if((Castling & (int) type) != 0)
+            {
+                switch (type)
+                {
+                    case CastlingType.KSWhite:
+                        if (Board.Grid[(int) Board.Coordinate.f1] == Pieces.Empty && Board.Grid[(int) Board.Coordinate.g1] == Pieces.Empty)
+                        {
+                            return true;
+                        }
+                        break;
+
+                    case CastlingType.QSWhite:
+                        if (Board.Grid[(int)Board.Coordinate.d1] == Pieces.Empty && Board.Grid[(int)Board.Coordinate.c1] == Pieces.Empty)
+                        {
+                            return true;
+                        }
+                        break;
+                        
+                    case CastlingType.KSBlack:
+                        if (Board.Grid[(int)Board.Coordinate.f8] == Pieces.Empty && Board.Grid[(int)Board.Coordinate.g8] == Pieces.Empty)
+                        {
+                            return true;
+                        }
+                        break; 
+
+                    case CastlingType.QSBlack:
+                        if (Board.Grid[(int)Board.Coordinate.d8] == Pieces.Empty && Board.Grid[(int)Board.Coordinate.c8] == Pieces.Empty)
+                        {
+                            return true;
+                        }
+                        break;
+                }
+            }
+            return false;
+        }
         public readonly struct Move
         {
             public readonly int originSquare;
@@ -64,13 +102,8 @@
                         yield return new Move(originSquare, targetSquare);
                     }
                 }
-
             }
 
-            /*if(originSquare == (int) Board.Coordinates.e8 && Board.SideToMove == Pieces.White)
-            {
-                if (Board.Grid[Board.Coordinates.f8])
-            }*/
         }
         static IEnumerable<Move> GenerateKnightMoves(int originSquare)
         {
