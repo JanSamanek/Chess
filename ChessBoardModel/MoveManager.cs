@@ -3,7 +3,7 @@
     public static class MoveManager
     {
         enum CastlingType { KSWhite = 8, QSWhite = 4, KSBlack = 2, QSBlack = 1 };
-        static int Castling = 0b1111;
+        public static int Castling = 0b1111;
         
         static bool CastlingCheck(CastlingType type)
         {
@@ -106,31 +106,33 @@
                         yield return new Move(originSquare, targetSquare);
                     }
                 }
-                if(Board.SideToMove == Pieces.White)
+
+            }
+
+            if(Board.SideToMove == Pieces.White)
+            {
+                if (CastlingCheck(CastlingType.KSWhite))
                 {
-                    if (CastlingCheck(CastlingType.KSWhite))
-                    {
-                        yield return new Move(originSquare,(int) Board.Coordinate.g1);
-                        Castling &= (int) ~CastlingType.KSWhite;
-                    }
-                    else if (CastlingCheck(CastlingType.QSWhite))
-                    {
-                        yield return new Move(originSquare, (int) Board.Coordinate.c1);
-                        Castling &= (int) ~CastlingType.QSWhite;
-                    }
+                    yield return new Move(originSquare,(int) Board.Coordinate.g1);
+                    //Castling &= (int) ~CastlingType.KSWhite;
                 }
-                else if(Board.SideToMove == Pieces.Black)
+                if (CastlingCheck(CastlingType.QSWhite))
                 {
-                    if (CastlingCheck(CastlingType.KSBlack))
-                    {
-                        yield return new Move(originSquare, (int)Board.Coordinate.g8);
-                        Castling &= (int) ~CastlingType.KSBlack;
-                    }
-                    else if (CastlingCheck(CastlingType.QSBlack))
-                    {
-                        yield return new Move(originSquare, (int)Board.Coordinate.c8);
-                        Castling &= (int) ~CastlingType.QSBlack;
-                    }
+                    yield return new Move(originSquare, (int) Board.Coordinate.c1);
+                    //Castling &= (int) ~CastlingType.QSWhite;
+                }
+            }
+            else if(Board.SideToMove == Pieces.Black)
+            {
+                if (CastlingCheck(CastlingType.KSBlack))
+                {
+                    yield return new Move(originSquare, (int)Board.Coordinate.g8);
+                    //Castling &= (int) ~CastlingType.KSBlack;
+                }
+                if (CastlingCheck(CastlingType.QSBlack))
+                {
+                    yield return new Move(originSquare, (int)Board.Coordinate.c8);
+                    //Castling &= (int) ~CastlingType.QSBlack;
                 }
             }
         }

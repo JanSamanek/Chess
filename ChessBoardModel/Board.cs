@@ -41,7 +41,7 @@
         public static void SetPieces(string fen)
         {
             Board.SetEmpty();
-            FenParser.parse(fen);
+            FenParser.Parse(fen);
         }
         public static void Show()
         {
