@@ -5,11 +5,11 @@
         enum CastlingType { KSWhite = 8, QSWhite = 4, KSBlack = 2, QSBlack = 1 };
         static int Castling = 0b1111;
         
-        static bool IsCastlingLegal(CastlingType type)
+        static bool CastlingCheck(CastlingType type)
         {
             if((Castling & (int) type) != 0)
             {
-                List<int> attackedSquares = GetAttackedSquares();   // is it possible to calc attacked squares only once?
+                List<int> attackedSquares = GetAttackedSquares();   //TODO: is it possible to calc attacked squares only once?
                 switch (type)
                 {
                     case CastlingType.KSWhite:
@@ -104,6 +104,32 @@
                     if(Pieces.GetPieceColor(pieceOnSquare) != Board.SideToMove)
                     {
                         yield return new Move(originSquare, targetSquare);
+                    }
+                }
+                if(Board.SideToMove == Pieces.White)
+                {
+                    if (CastlingCheck(CastlingType.KSWhite))
+                    {
+                        yield return new Move(originSquare,(int) Board.Coordinate.g1);
+                        Castling &= (int) ~CastlingType.KSWhite;
+                    }
+                    else if (CastlingCheck(CastlingType.QSWhite))
+                    {
+                        yield return new Move(originSquare, (int) Board.Coordinate.c1);
+                        Castling &= (int) ~CastlingType.QSWhite;
+                    }
+                }
+                else if(Board.SideToMove == Pieces.Black)
+                {
+                    if (CastlingCheck(CastlingType.KSBlack))
+                    {
+                        yield return new Move(originSquare, (int)Board.Coordinate.g8);
+                        Castling &= (int) ~CastlingType.KSBlack;
+                    }
+                    else if (CastlingCheck(CastlingType.QSBlack))
+                    {
+                        yield return new Move(originSquare, (int)Board.Coordinate.c8);
+                        Castling &= (int) ~CastlingType.QSBlack;
                     }
                 }
             }
