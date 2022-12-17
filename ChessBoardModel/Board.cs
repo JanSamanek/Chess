@@ -29,11 +29,11 @@
                     // if square is on chessbaord
                     if ((square & 0x88) == 0)
                     {
-                        Grid[square] = Pieces.SymbolsToPieces['e'];
+                        Grid[square] = Pieces.Empty;
                     }
                     else
                     {
-                        Grid[square] = Pieces.SymbolsToPieces['o'];
+                        Grid[square] = Pieces.Border;
                     }
                 }
             }
