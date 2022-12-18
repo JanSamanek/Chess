@@ -2,10 +2,10 @@
 {
     public static class Board
     {
-        public static int[] Grid = new int[128];
+        public static int[] Grid { get; set; } = new int[128];
         public const string startPos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-        public static int SideToMove;
-        public static int SideWaiting;
+        public static int SideToMove { get; set; }
+        public static int SideWaiting { get; set; }
         public enum Coordinate
         {
             a1, b1, c1, d1, e1, f1, g1, h1, i1, j1, k1, l1, m1, n1, o1, p1,
