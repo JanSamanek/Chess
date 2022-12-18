@@ -96,12 +96,13 @@
                     break;
             }
         }
-        static IEnumerable<Move> GenerateSlidingMoves(int originSquare, int piece)
+        static IEnumerable<Move> GenerateSlidingMoves(int originSquare, int pieceType)
         {
             //get the coresponding dir offsets for piece
-            int startIndex = piece == Pieces.Bishop ? 4 : 0;
-            int endIndex = piece == Pieces.Rook ? 4 : 8;
-            int colorOfMovingPiece = Pieces.GetPieceColor(piece);
+            int startIndex = pieceType == Pieces.Bishop ? 4 : 0;
+            int endIndex = pieceType == Pieces.Rook ? 4 : 8;
+            int pieceMoving = Board.Grid[originSquare];
+            int colorOfMovingPiece = Pieces.GetPieceColor(pieceMoving);
 
             foreach (int dirOffset in Pieces.DirOffsets[startIndex..endIndex])
             {
