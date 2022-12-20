@@ -5,7 +5,7 @@ namespace ChessBoardModel
     public static class MoveManager
     {
         public enum CastlingType { KSWhite = 8, QSWhite = 4, KSBlack = 2, QSBlack = 1 };
-        public static int Castling { get; set; } = 0;
+        public static int Castling { get; set; } = 0b1111;
         static bool CastlingCheck(CastlingType type)
         {
             if((Castling & (int) type) != 0)
@@ -53,13 +53,13 @@ namespace ChessBoardModel
             public readonly int originSquare;
             public readonly int targetSquare;
             public readonly CastlingType? castling;
-            public readonly int? promotionToPieceValue;
-            public Move(int originSquare, int targetSquare, CastlingType? castling = null, int? promotionToPieceValue = null)
+            public readonly int? promotionPieceValue;
+            public Move(int originSquare, int targetSquare, CastlingType? castling = null, int? promotionPieceValue = null)
             {
                 this.originSquare = originSquare;
                 this.targetSquare = targetSquare;
                 this.castling = castling;
-                this.promotionToPieceValue = promotionToPieceValue;
+                this.promotionPieceValue = promotionPieceValue;
             }
         }
         public static void MakeMove(Move move)
@@ -67,9 +67,9 @@ namespace ChessBoardModel
             switch (move.castling)
             {
                 case null:
-                    if(move.promotionToPieceValue != null)
+                    if(move.promotionPieceValue != null)
                     {
-                        Board.Grid[move.targetSquare] = (int) move.promotionToPieceValue;
+                        Board.Grid[move.targetSquare] = (int) move.promotionPieceValue;
                         Board.Grid[move.originSquare] = Pieces.Empty;
                     }
                     else
@@ -203,6 +203,7 @@ namespace ChessBoardModel
                 }
             }
         }
+        /***** bug *****/
         static IEnumerable<Move> GeneratePawnMoves(int originSquare)
         {
             int pawnColor = Pieces.GetPieceColor(Board.Grid[originSquare]);
@@ -258,7 +259,7 @@ namespace ChessBoardModel
             int pieceOnTargetSquare = Board.Grid[targetSquare];
 
             if (pieceOnTargetSquare == Pieces.Empty)
-                yield return new Move(originSquare, targetSquare, promotionToPieceValue: promotionPieceValue | pawnColor);
+                yield return new Move(originSquare, targetSquare, promotionPieceValue: promotionPieceValue | pawnColor);
 
             foreach (int attackOffset in Pieces.PawnAttacks)
             {
@@ -268,7 +269,7 @@ namespace ChessBoardModel
                 int colorOfPiece = Pieces.GetPieceColor(pieceOnTargetSquare);
                 if (colorOfPiece == Pieces.GetColorOfOposingSide(pawnColor))
                 {
-                    yield return new Move(originSquare, targetSquare, promotionToPieceValue: promotionPieceValue | pawnColor);
+                    yield return new Move(originSquare, targetSquare, promotionPieceValue: promotionPieceValue | pawnColor);
                 }
             }
         }
