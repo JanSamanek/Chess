@@ -1,6 +1,4 @@
-﻿using static ChessBoardModel.MoveManager;
-
-namespace ChessBoardModel
+﻿namespace ChessBoardModel
 {
     public static class MoveManager
     {
@@ -10,7 +8,7 @@ namespace ChessBoardModel
         {
             if((Castling & (int) type) != 0)
             {
-                List<int> AttackedSquares = attackedSquares;   //TODO: is it possible to calc attacked squares only once?
+                List<int> AttackedSquares = attackedSquares;
                 switch (type)
                 {
                     case CastlingType.KSWhite:
@@ -143,7 +141,7 @@ namespace ChessBoardModel
         }
         static IEnumerable<Move> GenerateKingMoves(int originSquare)
         {
-            // to able to use function in GetAttackedSquares
+            // to able to use function in GetAttackedSquares and not care if squares are attacked or not
             List<int> attackedSquares;
             if (Pieces.GetPieceColor(originSquare) == Board.SideToMove)
                  attackedSquares = GetAttackedSquares();
