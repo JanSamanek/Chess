@@ -231,76 +231,47 @@ namespace ChessBoardModel
                 }
             }
 
-            if (rank == 1 && pawnColor == Pieces.Black)
+            if (rank == 6 && pawnColor == Pieces.White)
             {
-
                 for (int pieceValue = 2; pieceValue <= 5; pieceValue++)
-                {
-                    targetSquare = originSquare + dir * Pieces.Foward;
-                    pieceOnTargetSquare = Board.Grid[targetSquare];
-
-                    if (pieceOnTargetSquare == Pieces.Empty)
-                        yield return new Move(originSquare, targetSquare, promotionToPieceValue: pieceValue | Pieces.Black);
-
-                    foreach (int attackOffset in Pieces.PawnAttacks)
-                    {
-                        targetSquare = originSquare + attackOffset * dir;
-                        pieceOnTargetSquare = Board.Grid[targetSquare];
-
-                        int colorOfPiece = Pieces.GetPieceColor(pieceOnTargetSquare);
-                        if (colorOfPiece == Pieces.GetColorOfOposingSide(pawnColor))
-                        {
-                            yield return new Move(originSquare, targetSquare, promotionToPieceValue: pieceValue | Pieces.Black);
-                        }
-                    }
-                }
+                    foreach(Move move in PawnMoves(originSquare, pieceValue))
+                        yield return move;
             }
-            else if (rank == 6 && pawnColor == Pieces.White)
+            else if (rank == 1 && pawnColor == Pieces.Black)
             {
-
                 for (int pieceValue = 2; pieceValue <= 5; pieceValue++)
-                {
-                    targetSquare = originSquare + dir * Pieces.Foward;
-                    pieceOnTargetSquare = Board.Grid[targetSquare];
-
-                    if (pieceOnTargetSquare == Pieces.Empty)
-                        yield return new Move(originSquare, targetSquare, promotionToPieceValue: pieceValue | Pieces.White);
-
-                    foreach (int attackOffset in Pieces.PawnAttacks)
-                    {
-                        targetSquare = originSquare + attackOffset * dir;
-                        pieceOnTargetSquare = Board.Grid[targetSquare];
-
-                        int colorOfPiece = Pieces.GetPieceColor(pieceOnTargetSquare);
-                        if (colorOfPiece == Pieces.GetColorOfOposingSide(pawnColor))
-                        {
-                            yield return new Move(originSquare, targetSquare, promotionToPieceValue: pieceValue | Pieces.White);
-                        }
-                    }
-                }
+                    foreach (Move move in PawnMoves(originSquare, pieceValue))
+                        yield return move;
             }
             else
             {
-                targetSquare = originSquare + dir * Pieces.Foward;
+                foreach(Move move in PawnMoves(originSquare))
+                    yield return move;
+            }
+        }
+        static IEnumerable<Move> PawnMoves(int originSquare, int? promotionPieceValue = null)
+        {
+            int pawnColor = Pieces.GetPieceColor(Board.Grid[originSquare]);
+            int dir = pawnColor == Pieces.White ? 1 : -1;
+
+            int targetSquare = originSquare + dir * Pieces.Foward; 
+            int pieceOnTargetSquare = Board.Grid[targetSquare];
+
+            if (pieceOnTargetSquare == Pieces.Empty)
+                yield return new Move(originSquare, targetSquare, promotionToPieceValue: promotionPieceValue | pawnColor);
+
+            foreach (int attackOffset in Pieces.PawnAttacks)
+            {
+                targetSquare = originSquare + attackOffset * dir;
                 pieceOnTargetSquare = Board.Grid[targetSquare];
-                // into a function?
-                if (pieceOnTargetSquare == Pieces.Empty)
-                    yield return new Move(originSquare, targetSquare);
 
-                foreach (int attackOffset in Pieces.PawnAttacks)
+                int colorOfPiece = Pieces.GetPieceColor(pieceOnTargetSquare);
+                if (colorOfPiece == Pieces.GetColorOfOposingSide(pawnColor))
                 {
-                    targetSquare = originSquare + attackOffset * dir;
-                    pieceOnTargetSquare = Board.Grid[targetSquare];
-
-                    int colorOfPiece = Pieces.GetPieceColor(pieceOnTargetSquare);
-                    if (colorOfPiece == Pieces.GetColorOfOposingSide(pawnColor))
-                    {
-                        yield return new Move(originSquare, targetSquare);
-                    }
+                    yield return new Move(originSquare, targetSquare, promotionToPieceValue: promotionPieceValue | pawnColor);
                 }
             }
         }
-
         static IEnumerable<Move> GenerateMovesForSquare(int originSquare, int color)
         {
             int piece = Board.Grid[originSquare];
