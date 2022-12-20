@@ -20,5 +20,6 @@
         #endregion
         public static int GetPieceColor(int piece) => piece & 0x18;
         public static int GetPieceValue(int piece) => piece & 0x7;
+        public static int GetColorOfOposingSide(int color) => color ^ 0x18;
     }
 }
