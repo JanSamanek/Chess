@@ -6,17 +6,17 @@ namespace ChessBoardModel
     {
         public enum CastlingType { KSWhite = 8, QSWhite = 4, KSBlack = 2, QSBlack = 1 };
         public static int Castling { get; set; } = 0b1111;
-        static bool CastlingCheck(CastlingType type)
+        static bool CastlingCheck(CastlingType type, List<int> attackedSquares)
         {
             if((Castling & (int) type) != 0)
             {
-                List<int> attackedSquares = GetAttackedSquares();   //TODO: is it possible to calc attacked squares only once?
+                List<int> AttackedSquares = attackedSquares;   //TODO: is it possible to calc attacked squares only once?
                 switch (type)
                 {
                     case CastlingType.KSWhite:
                         if (Board.Grid[(int) Board.Coordinate.f1] == Pieces.Empty && Board.Grid[(int) Board.Coordinate.g1] == Pieces.Empty)
                         {
-                            if(!attackedSquares.Contains((int) Board.Coordinate.f1) && !attackedSquares.Contains((int)Board.Coordinate.g1))
+                            if(!AttackedSquares.Contains((int) Board.Coordinate.f1) && !AttackedSquares.Contains((int)Board.Coordinate.g1))
                             return true;
                         }
                         break;
@@ -24,7 +24,7 @@ namespace ChessBoardModel
                     case CastlingType.QSWhite:
                         if (Board.Grid[(int)Board.Coordinate.d1] == Pieces.Empty && Board.Grid[(int)Board.Coordinate.c1] == Pieces.Empty)
                         {
-                            if (!attackedSquares.Contains((int)Board.Coordinate.d1) && !attackedSquares.Contains((int)Board.Coordinate.c1))
+                            if (!AttackedSquares.Contains((int)Board.Coordinate.d1) && !AttackedSquares.Contains((int)Board.Coordinate.c1))
                                 return true;
                         }
                         break;
@@ -32,7 +32,7 @@ namespace ChessBoardModel
                     case CastlingType.KSBlack:
                         if (Board.Grid[(int)Board.Coordinate.f8] == Pieces.Empty && Board.Grid[(int)Board.Coordinate.g8] == Pieces.Empty)
                         {
-                            if (!attackedSquares.Contains((int)Board.Coordinate.f8) && !attackedSquares.Contains((int)Board.Coordinate.g8))
+                            if (!AttackedSquares.Contains((int)Board.Coordinate.f8) && !AttackedSquares.Contains((int)Board.Coordinate.g8))
                                 return true;
                         }
                         break; 
@@ -40,7 +40,7 @@ namespace ChessBoardModel
                     case CastlingType.QSBlack:
                         if (Board.Grid[(int)Board.Coordinate.d8] == Pieces.Empty && Board.Grid[(int)Board.Coordinate.c8] == Pieces.Empty)
                         {
-                            if (!attackedSquares.Contains((int)Board.Coordinate.d8) && !attackedSquares.Contains((int)Board.Coordinate.d8))
+                            if (!AttackedSquares.Contains((int)Board.Coordinate.d8) && !AttackedSquares.Contains((int)Board.Coordinate.d8))
                                 return true;
                         }
                         break;
@@ -143,15 +143,21 @@ namespace ChessBoardModel
         }
         static IEnumerable<Move> GenerateKingMoves(int originSquare)
         {
-            List<int> attackedSquares = GetAttackedSquares();
-            int colorOfMovingPiece = Pieces.GetPieceColor(Board.Grid[originSquare]);
+            // to able to use function in GetAttackedSquares
+            List<int> attackedSquares;
+            if (Pieces.GetPieceColor(originSquare) == Board.SideToMove)
+                 attackedSquares = GetAttackedSquares();
+            else
+                attackedSquares = new List<int>();
+
+            int colorOfKing = Pieces.GetPieceColor(Board.Grid[originSquare]);
             foreach (int offset in Pieces.DirOffsets)
             {
                 int targetSquare = originSquare + offset;
                 if ((targetSquare & 0x88) == 0 && !attackedSquares.Contains(targetSquare))
                 {
                     int pieceOnSquare = Board.Grid[targetSquare];
-                    if(Pieces.GetPieceColor(pieceOnSquare) != colorOfMovingPiece)
+                    if(Pieces.GetPieceColor(pieceOnSquare) != colorOfKing)
                     {
                         yield return new Move(originSquare, targetSquare);
                     }
@@ -162,12 +168,12 @@ namespace ChessBoardModel
             {
                 if(Board.SideToMove == Pieces.White)
                 {
-                    if (CastlingCheck(CastlingType.KSWhite))
+                    if (CastlingCheck(CastlingType.KSWhite, attackedSquares))
                     {
                         yield return new Move(originSquare,(int) Board.Coordinate.g1, CastlingType.KSWhite);
                         Castling &= (int) ~CastlingType.KSWhite;
                     }
-                    if (CastlingCheck(CastlingType.QSWhite))
+                    if (CastlingCheck(CastlingType.QSWhite, attackedSquares))
                     {
                         yield return new Move(originSquare, (int) Board.Coordinate.c1, CastlingType.QSWhite);
                         Castling &= (int) ~CastlingType.QSWhite;
@@ -175,12 +181,12 @@ namespace ChessBoardModel
                 }
                 else if(Board.SideToMove == Pieces.Black)
                 {
-                    if (CastlingCheck(CastlingType.KSBlack))
+                    if (CastlingCheck(CastlingType.KSBlack, attackedSquares))
                     {
                         yield return new Move(originSquare, (int)Board.Coordinate.g8, CastlingType.KSBlack);
                         Castling &= (int) ~CastlingType.KSBlack;
                     }
-                    if (CastlingCheck(CastlingType.QSBlack))
+                    if (CastlingCheck(CastlingType.QSBlack, attackedSquares))
                     {
                         yield return new Move(originSquare, (int)Board.Coordinate.c8, CastlingType.QSBlack);
                         Castling &= (int) ~CastlingType.QSBlack;
@@ -203,7 +209,6 @@ namespace ChessBoardModel
                 }
             }
         }
-        /***** bug *****/
         static IEnumerable<Move> GeneratePawnMoves(int originSquare)
         {
             int pawnColor = Pieces.GetPieceColor(Board.Grid[originSquare]);
@@ -319,10 +324,8 @@ namespace ChessBoardModel
 
                     // if square is on chessbaord
                     if ((originSquare & 0x88) == 0)
-                    {
                         foreach (Move move in GenerateMovesForSquare(originSquare, color))
                             moves.Add(move);
-                    }
                 }
             }
             return moves;
