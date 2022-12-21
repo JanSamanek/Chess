@@ -53,12 +53,14 @@
             public readonly int targetSquare;
             public readonly CastlingType? castling;
             public readonly int? promotionPieceValue;
-            public Move(int originSquare, int targetSquare, CastlingType? castling = null, int? promotionPieceValue = null)
+            public readonly bool? en_passant;
+            public Move(int originSquare, int targetSquare, CastlingType? castling = null, int? promotionPieceValue = null, bool? en_passant = null)
             {
                 this.originSquare = originSquare;
                 this.targetSquare = targetSquare;
                 this.castling = castling;
                 this.promotionPieceValue = promotionPieceValue;
+                this.en_passant = en_passant;
             }
         }
         public static void MakeMove(Move move)
@@ -70,6 +72,13 @@
                     {
                         Board.Grid[move.targetSquare] = (int) move.promotionPieceValue;
                         Board.Grid[move.originSquare] = Pieces.Empty;
+                    }
+                    else if(move.en_passant != null)
+                    {
+                        Board.Grid[move.targetSquare] = Board.Grid[move.originSquare];
+                        Board.Grid[move.originSquare] = Pieces.Empty;
+                        int squareBehind = Board.SideToMove == Pieces.White ? -16 : 16;
+                        Board.Grid[move.targetSquare + squareBehind] = Pieces.Empty;
                     }
                     else
                     {
@@ -214,45 +223,36 @@
             int dir = pawnColor == Pieces.White ? 1 : -1;
             int rank = Board.GetRank(originSquare);
 
-            int targetSquare;
-            int pieceOnTargetSquare;
+            int targetSquare, pieceOnTargetSquare;
 
             if (pawnColor == Pieces.White && rank == 1)
             {
                 targetSquare = originSquare + 2 * dir * Pieces.Foward;
                 pieceOnTargetSquare = Board.Grid[targetSquare];
                 if (pieceOnTargetSquare == Pieces.Empty)
-                {
                     yield return new Move(originSquare, targetSquare);
-                }
             }
             else if (pawnColor == Pieces.Black && rank == 6)
             {
                 targetSquare = originSquare + 2 * dir * Pieces.Foward;
                 pieceOnTargetSquare = Board.Grid[targetSquare];
                 if(pieceOnTargetSquare == Pieces.Empty)
-                {
                     yield return new Move(originSquare, targetSquare);
-                }
             }
 
             if (rank == 6 && pawnColor == Pieces.White)
-            {
                 for (int pieceValue = 2; pieceValue <= 5; pieceValue++)
                     foreach(Move move in PawnMoves(originSquare, pieceValue))
                         yield return move;
-            }
+
             else if (rank == 1 && pawnColor == Pieces.Black)
-            {
                 for (int pieceValue = 2; pieceValue <= 5; pieceValue++)
                     foreach (Move move in PawnMoves(originSquare, pieceValue))
                         yield return move;
-            }
+
             else
-            {
                 foreach(Move move in PawnMoves(originSquare))
                     yield return move;
-            }
         }
         static IEnumerable<Move> PawnMoves(int originSquare, int? promotionPieceValue = null)
         {
@@ -272,9 +272,9 @@
 
                 int colorOfPiece = Pieces.GetPieceColor(pieceOnTargetSquare);
                 if (colorOfPiece == Pieces.GetColorOfOposingSide(pawnColor))
-                {
                     yield return new Move(originSquare, targetSquare, promotionPieceValue: promotionPieceValue | pawnColor);
-                }
+                else if (En_passant != null && targetSquare == (int) En_passant)
+                    yield return new Move(originSquare, targetSquare, promotionPieceValue: promotionPieceValue | pawnColor, en_passant: true);
             }
         }
         static IEnumerable<Move> GenerateMovesForSquare(int originSquare, int color)
