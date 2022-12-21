@@ -1,6 +1,6 @@
 ﻿using ChessBoardModel;
 
-string position = "8/8/8/2pP4/2pP4/8/8/8 b - d3 0 1";
+string position = Board.startPos;
 Board.SetPieces(position);
 IEnumerable<MoveManager.Move> moves = MoveManager.GetLegalMoves();
 Board.Show();
@@ -15,3 +15,5 @@ foreach (MoveManager.Move move in moves)
     Board.SetPieces(position);
     Console.Clear();
 }
+
+// have to add kingsquare, castling and en_passant, what happens when turn ends???

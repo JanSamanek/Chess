@@ -3,6 +3,7 @@
     public static class Board
     {
         public static int[] Grid { get; set; } = new int[128];
+        public static int KingSquare { get; set; }
         public const string startPos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
         public static int SideToMove { get; set; }
         public static int SideWaiting { get; set; }

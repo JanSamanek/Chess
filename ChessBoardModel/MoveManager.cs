@@ -166,9 +166,7 @@
                 {
                     int pieceOnSquare = Board.Grid[targetSquare];
                     if(Pieces.GetPieceColor(pieceOnSquare) != colorOfKing)
-                    {
                         yield return new Move(originSquare, targetSquare);
-                    }
                 }
             }
 

@@ -16,7 +16,7 @@
             Board.SideToMove = sideToMove == "w" ? Pieces.White: Pieces.Black;
             Board.SideWaiting = Board.SideToMove ^ 0x18;
 
-            foreach(char castlingType in castling)
+            foreach (char castlingType in castling)
             {
                 switch(castlingType)
                 {
@@ -48,6 +48,8 @@
                         int pieceType = Pieces.SymbolsToPieces[char.ToLower(value)];
                         int pieceColor = char.IsUpper(value) ? Pieces.White : Pieces.Black;
                         int square = rank * 16 + file;
+                        if(pieceType == Pieces.King && pieceColor == Board.SideToMove)
+                            Board.KingSquare = square;
                         Board.Grid[square] = pieceType | pieceColor;
                         file++;
                     }
