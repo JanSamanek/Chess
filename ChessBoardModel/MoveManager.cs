@@ -2,6 +2,7 @@
 {
     public static class MoveManager
     {
+        public static Board.Coordinate? En_passant { get; set; }
         public enum CastlingType { KSWhite = 8, QSWhite = 4, KSBlack = 2, QSBlack = 1 };
         public static int Castling { get; set; } = 0b1111;
         static bool CastlingCheck(CastlingType type, List<int> attackedSquares)

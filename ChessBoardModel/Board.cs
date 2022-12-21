@@ -64,5 +64,6 @@
                 Console.Write("\n");
             }
         }
+        public static Coordinate? ParseCoordinate(string coordinate) => coordinate == "-" ? null : Enum.Parse<Coordinate>(coordinate);
     }
 }

@@ -8,12 +8,15 @@
             string[] fenSplit = fen.Split(" ");
             string fenBoard = fenSplit[0];
             string sideToMove = fenSplit[1];
-            string Castling = fenSplit[2];
+            string castling = fenSplit[2];
+            string en_passant = fenSplit[3];
+
+            MoveManager.En_passant = Board.ParseCoordinate(en_passant);
 
             Board.SideToMove = sideToMove == "w" ? Pieces.White: Pieces.Black;
             Board.SideWaiting = Board.SideToMove ^ 0x18;
 
-            foreach(char castlingType in Castling)
+            foreach(char castlingType in castling)
             {
                 switch(castlingType)
                 {
