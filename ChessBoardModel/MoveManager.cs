@@ -253,31 +253,38 @@ namespace ChessBoardModel
 
             int targetSquare, pieceOnTargetSquare;
 
-            if (pawnColor == Pieces.White && rank == 1)
+            if (pawnColor == Pieces.White)
             {
-                targetSquare = originSquare + 2 * dir * Pieces.Foward;
-                pieceOnTargetSquare = Board.Grid[targetSquare];
-                if (pieceOnTargetSquare == Pieces.Empty)
-                    yield return new Move(originSquare, targetSquare);
+                if(rank == 1)
+                {
+                    targetSquare = originSquare + 2 * dir * Pieces.Foward;
+                    pieceOnTargetSquare = Board.Grid[targetSquare];
+                    if (pieceOnTargetSquare == Pieces.Empty)
+                        yield return new Move(originSquare, targetSquare);
+                }
+                else if(rank == 6)
+                {
+                    for (int pieceValue = 2; pieceValue <= 5; pieceValue++)
+                        foreach (Move move in PawnMoves(originSquare, pieceValue))
+                            yield return move;
+                }
             }
-            else if (pawnColor == Pieces.Black && rank == 6)
+            else if (pawnColor == Pieces.Black)
             {
-                targetSquare = originSquare + 2 * dir * Pieces.Foward;
-                pieceOnTargetSquare = Board.Grid[targetSquare];
-                if(pieceOnTargetSquare == Pieces.Empty)
-                    yield return new Move(originSquare, targetSquare);
+                if(rank == 6)
+                {
+                    targetSquare = originSquare + 2 * dir * Pieces.Foward;
+                    pieceOnTargetSquare = Board.Grid[targetSquare];
+                    if(pieceOnTargetSquare == Pieces.Empty)
+                        yield return new Move(originSquare, targetSquare);
+                }
+                else if(rank == 1)
+                {
+                    for (int pieceValue = 2; pieceValue <= 5; pieceValue++)
+                        foreach (Move move in PawnMoves(originSquare, pieceValue))
+                            yield return move;
+                }
             }
-
-            if (rank == 6 && pawnColor == Pieces.White)
-                for (int pieceValue = 2; pieceValue <= 5; pieceValue++)
-                    foreach(Move move in PawnMoves(originSquare, pieceValue))
-                        yield return move;
-
-            else if (rank == 1 && pawnColor == Pieces.Black)
-                for (int pieceValue = 2; pieceValue <= 5; pieceValue++)
-                    foreach (Move move in PawnMoves(originSquare, pieceValue))
-                        yield return move;
-
             else
                 foreach(Move move in PawnMoves(originSquare))
                     yield return move;
@@ -402,7 +409,7 @@ namespace ChessBoardModel
                 pieceOnSquareValue = Pieces.GetPieceValue(pieceOnSquare);
                 colorOfPiece = Pieces.GetPieceColor(pieceOnSquare);
 
-                if (possiblePinSquare == null && colorOfPiece != colorOfKing && pieceOnSquare != Pieces.Empty)
+                if (possiblePinSquare == null && colorOfPiece == Pieces.GetColorOfOtherSide(colorOfKing))
                     break;
                 else if (colorOfPiece == colorOfKing && !isBehindPiece)
                     possiblePinSquare = targetSquare;
