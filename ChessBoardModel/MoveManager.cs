@@ -151,7 +151,7 @@
         }
         static IEnumerable<Move> GenerateKingMoves(int originSquare)
         {
-            // to able to use function in GetAttackedSquares and not care if squares are attacked or not
+            // to calculate attackd squares only for the king whose turn it is
             List<int> attackedSquares;
             if (Pieces.GetPieceColor(originSquare) == Board.SideToMove)
                  attackedSquares = GetAttackedSquares();
@@ -269,7 +269,7 @@
                 pieceOnTargetSquare = Board.Grid[targetSquare];
 
                 int colorOfPiece = Pieces.GetPieceColor(pieceOnTargetSquare);
-                if (colorOfPiece == Pieces.GetColorOfOposingSide(pawnColor))
+                if (colorOfPiece == Pieces.GetColorOfOtherSide(pawnColor))
                     yield return new Move(originSquare, targetSquare, promotionPieceValue: promotionPieceValue | pawnColor);
                 else if (En_passant != null && targetSquare == (int) En_passant)
                     yield return new Move(originSquare, targetSquare, promotionPieceValue: promotionPieceValue | pawnColor, en_passant: true);
@@ -309,7 +309,7 @@
                 return empty;
             }
         }
-        public static List<Move> GetMovesForBoard(int color)
+        static List<Move> GetMovesForBoard(int color)
         {
             List<Move> moves = new List<Move>();
 
@@ -327,7 +327,7 @@
             }
             return moves;
         }
-        public static List<int> GetAttackedSquares()
+        static List<int> GetAttackedSquares()
         {
             List<int> attackedSquares = new List<int>();
             foreach(Move move in GetMovesForBoard(Board.SideWaiting))
@@ -336,9 +336,80 @@
             }
             return attackedSquares;
         }
-        public static List<Move> GetLegalMoves()
+        public static List<Move> GetLegalMoves() => GetMovesForBoard(Board.SideToMove);
+        public static List<int> GetPinnedSquares()
         {
-            return GetMovesForBoard(Board.SideToMove);
+            List<int> pinnedSquares = new List<int>();
+            int king = Board.Grid[Board.KingSquare];
+            int colorOfKing = Pieces.GetPieceColor(king);
+            int pieceOnSquare, colorOfPiece, targetSquare, pieceOnSquareValue;
+            bool isBehindPiece = false;
+            int? possiblePinSquare;
+
+            foreach (int offset in Pieces.StraightOffsets)
+            {
+                targetSquare = Board.KingSquare + offset;
+                possiblePinSquare = null;
+
+                while ((targetSquare & 0x88) == 0)
+                {
+                    pieceOnSquare = Board.Grid[targetSquare];
+                    pieceOnSquareValue = Pieces.GetPieceValue(pieceOnSquare);
+                    colorOfPiece = Pieces.GetPieceColor(pieceOnSquare);
+
+                    if (possiblePinSquare == null && colorOfPiece != colorOfKing && pieceOnSquare != Pieces.Empty)
+                        break;
+                    else if (colorOfPiece == colorOfKing && !isBehindPiece)
+                        possiblePinSquare = targetSquare;
+                    else if (colorOfPiece == colorOfKing && isBehindPiece)
+                        break;
+                    else if (possiblePinSquare != null && colorOfPiece == Pieces.GetColorOfOtherSide(colorOfKing))
+                    {
+                        if(pieceOnSquareValue == Pieces.Queen || pieceOnSquareValue == Pieces.Rook)
+                        {
+                            pinnedSquares.Add((int) possiblePinSquare);
+                            Console.WriteLine("Straight pin: " + possiblePinSquare);
+                            break;
+                        }
+                    }
+
+                    targetSquare += offset;
+                }
+            }
+
+            foreach (int offset in Pieces.DiagonalOffsets)
+            {
+                targetSquare = Board.KingSquare + offset;
+                possiblePinSquare = null;
+
+                while ((targetSquare & 0x88) == 0)
+                {
+                    pieceOnSquare = Board.Grid[targetSquare];
+                    pieceOnSquareValue = Pieces.GetPieceValue(pieceOnSquare);
+                    colorOfPiece = Pieces.GetPieceColor(pieceOnSquare);
+
+                    if (possiblePinSquare == null && colorOfPiece != colorOfKing && pieceOnSquare != Pieces.Empty)
+                        break;
+                    else if (colorOfPiece == colorOfKing && !isBehindPiece)
+                        possiblePinSquare = targetSquare;
+                    else if (colorOfPiece == colorOfKing && isBehindPiece)
+                        break;
+                    else if (possiblePinSquare != null && colorOfPiece == Pieces.GetColorOfOtherSide(colorOfKing))
+                    {
+                        if (pieceOnSquareValue == Pieces.Queen || pieceOnSquareValue == Pieces.Bishop)
+                        {
+                            pinnedSquares.Add((int)possiblePinSquare);
+                            Console.WriteLine("Diagonal pin: " + possiblePinSquare);
+                            break;
+                        }
+                    }
+
+                    targetSquare += offset;
+                }
+            }
+
+            return pinnedSquares;
         }
+
     }
 }
