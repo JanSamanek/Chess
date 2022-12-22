@@ -252,10 +252,10 @@ namespace ChessBoardModel
             int rank = Board.GetRank(originSquare);
 
             int targetSquare, pieceOnTargetSquare;
-
+            // attacked squares should not count foward
             if (pawnColor == Pieces.White)
             {
-                if(rank == 1)
+                if(rank == 1 && !calculatingAttackedSquares)
                 {
                     targetSquare = originSquare + 2 * dir * Pieces.Foward;
                     pieceOnTargetSquare = Board.Grid[targetSquare];
@@ -271,7 +271,7 @@ namespace ChessBoardModel
             }
             else if (pawnColor == Pieces.Black)
             {
-                if(rank == 6)
+                if(rank == 6 && !calculatingAttackedSquares)
                 {
                     targetSquare = originSquare + 2 * dir * Pieces.Foward;
                     pieceOnTargetSquare = Board.Grid[targetSquare];
@@ -297,7 +297,7 @@ namespace ChessBoardModel
             int targetSquare = originSquare + dir * Pieces.Foward; 
             int pieceOnTargetSquare = Board.Grid[targetSquare];
 
-            if (pieceOnTargetSquare == Pieces.Empty)
+            if (pieceOnTargetSquare == Pieces.Empty && !calculatingAttackedSquares)
                 yield return new Move(originSquare, targetSquare, promotionPieceValue: promotionPieceValue | pawnColor);
 
             foreach (int attackOffset in Pieces.PawnAttacks)
