@@ -5,6 +5,7 @@ namespace ChessBoardModel
     public static class MoveManager
     {
         public static List<Pin>? Pins { get; set; } = null;
+        static List<int>? attackedSquares = null;
         static bool calculatingAttackedSquares = false;
         public static Board.Coordinate? En_passant { get; set; }
         public enum CastlingType { KSWhite = 8, QSWhite = 4, KSBlack = 2, QSBlack = 1 };
@@ -178,18 +179,11 @@ namespace ChessBoardModel
         }
         static IEnumerable<Move> GenerateKingMoves(int originSquare)
         {
-            // to calculate attacked squares only for the king whose turn it is
-            List<int> attackedSquares;
-            if (Pieces.GetPieceColor(originSquare) == Board.SideToMove)
-                 attackedSquares = GetAttackedSquares();
-            else
-                attackedSquares = new List<int>();
-
             int colorOfKing = Pieces.GetPieceColor(Board.Grid[originSquare]);
             foreach (int offset in Pieces.DirOffsets)
             {
                 int targetSquare = originSquare + offset;
-                if ((targetSquare & 0x88) == 0 && !attackedSquares.Contains(targetSquare))
+                if ((targetSquare & 0x88) == 0 && attackedSquares != null && !attackedSquares.Contains(targetSquare))
                 {
                     int pieceOnSquare = Board.Grid[targetSquare];
                     if(Pieces.GetPieceColor(pieceOnSquare) != colorOfKing)
@@ -197,7 +191,7 @@ namespace ChessBoardModel
                 }
             }
 
-            if (!attackedSquares.Contains(originSquare))
+            if (attackedSquares != null && !attackedSquares.Contains(originSquare))
             {
                 if(Board.SideToMove == Pieces.White)
                 {
@@ -250,9 +244,8 @@ namespace ChessBoardModel
             int pawnColor = Pieces.GetPieceColor(Board.Grid[originSquare]);
             int dir = pawnColor == Pieces.White ? 1 : -1;
             int rank = Board.GetRank(originSquare);
-
             int targetSquare, pieceOnTargetSquare;
-            // attacked squares should not count foward
+            
             if (pawnColor == Pieces.White)
             {
                 if(rank == 1 && !calculatingAttackedSquares)
@@ -265,7 +258,7 @@ namespace ChessBoardModel
                 else if(rank == 6)
                 {
                     for (int pieceValue = 2; pieceValue <= 5; pieceValue++)
-                        foreach (Move move in PawnMoves(originSquare, pieceValue))
+                        foreach (Move move in BasicPawnMoves(originSquare, pieceValue))
                             yield return move;
                 }
             }
@@ -281,15 +274,15 @@ namespace ChessBoardModel
                 else if(rank == 1)
                 {
                     for (int pieceValue = 2; pieceValue <= 5; pieceValue++)
-                        foreach (Move move in PawnMoves(originSquare, pieceValue))
+                        foreach (Move move in BasicPawnMoves(originSquare, pieceValue))
                             yield return move;
                 }
             }
             else
-                foreach(Move move in PawnMoves(originSquare))
+                foreach(Move move in BasicPawnMoves(originSquare))
                     yield return move;
         }
-        static IEnumerable<Move> PawnMoves(int originSquare, int? promotionPieceValue = null)
+        static IEnumerable<Move> BasicPawnMoves(int originSquare, int? promotionPieceValue = null)
         {
             int pawnColor = Pieces.GetPieceColor(Board.Grid[originSquare]);
             int dir = pawnColor == Pieces.White ? 1 : -1;
@@ -348,7 +341,7 @@ namespace ChessBoardModel
         }
         static List<Move> GetMovesForBoard(int color)
         {
-            List<Move> moves = new List<Move>();
+            List<Move> moves = new();
             if(!calculatingAttackedSquares)
                 Pins = GetPins();
             for (int rank = 0; rank < 8; rank++)
@@ -369,14 +362,18 @@ namespace ChessBoardModel
         {
             List<int> attackedSquares = new List<int>();
             calculatingAttackedSquares = true;
-            foreach(Move move in GetMovesForBoard(Board.SideWaiting))
+            foreach(Move attackMove in GetMovesForBoard(Board.SideWaiting))
             {
-                attackedSquares.Add(move.targetSquare);
+                attackedSquares.Add(attackMove.targetSquare);
             }
             calculatingAttackedSquares = false;
             return attackedSquares;
         }
-        public static List<Move> GetLegalMoves() => GetMovesForBoard(Board.SideToMove);
+        public static List<Move> GetLegalMoves()
+        {
+            attackedSquares = GetAttackedSquares();
+            return GetMovesForBoard(Board.SideToMove);
+        }
         static List<Pin> GetPins()
         {
             List<Pin> pinnedSquares = new List<Pin>();
