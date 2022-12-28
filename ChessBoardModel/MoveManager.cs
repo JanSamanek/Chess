@@ -9,7 +9,7 @@ namespace ChessBoardModel
         static bool calculatingAttackedSquares = false;
         public static Board.Coordinate? En_passant { get; set; }
         public enum CastlingType { KSWhite = 8, QSWhite = 4, KSBlack = 2, QSBlack = 1 };
-        public static int Castling { get; set; } = 0b1111;
+        public static int Castling { get; set; } = 0;
         static bool CastlingCheck(CastlingType type, List<int> attackedSquares)
         {
             if((Castling & (int) type) != 0)
@@ -159,20 +159,20 @@ namespace ChessBoardModel
 
                 while ((targetSquare & 0x88) == 0)
                 {
-                    int pieceOnSquare = Board.Grid[targetSquare];
-                    if (pieceOnSquare == Pieces.Empty)
+                    int pieceOnTarget = Board.Grid[targetSquare];
+                    if (pieceOnTarget == Pieces.Empty)
                     {
                         yield return new Move(originSquare, targetSquare);
                         targetSquare += dirOffset;
                     }
                     //on target square is a piece of opposite color
-                    else if (Pieces.GetPieceColor(pieceOnSquare) != colorOfMovingPiece)
+                    else if (Pieces.GetPieceColor(pieceOnTarget) != colorOfMovingPiece)
                     {
                         yield return new Move(originSquare, targetSquare);
                         break;
                     }
                     //on target square is a piece of the same color
-                    else if (Pieces.GetPieceColor(pieceOnSquare) == colorOfMovingPiece)
+                    else if (Pieces.GetPieceColor(pieceOnTarget) == colorOfMovingPiece)
                         break;
                 }
             }
@@ -245,10 +245,21 @@ namespace ChessBoardModel
             int dir = pawnColor == Pieces.White ? 1 : -1;
             int rank = Board.GetRank(originSquare);
             int targetSquare, pieceOnTargetSquare;
-            
+            int[] pawnAttacks;
+            bool foward = true;
+
+            // pin management
+            if (Pins != null && Pins.Exists(x => x.pinnedSquare == originSquare) && !calculatingAttackedSquares)
+            {
+                Pin pin = Pins.Find(x => x.pinnedSquare == originSquare);
+                int dirAbsolut = pin.dirOffset < 0 ? -pin.dirOffset : pin.dirOffset;
+                if (dirAbsolut !=16)
+                    foward = false;
+            }
+
             if (pawnColor == Pieces.White)
             {
-                if(rank == 1 && !calculatingAttackedSquares)
+                if(!calculatingAttackedSquares && foward && rank == 1 )
                 {
                     targetSquare = originSquare + 2 * dir * Pieces.Foward;
                     pieceOnTargetSquare = Board.Grid[targetSquare];
@@ -258,13 +269,17 @@ namespace ChessBoardModel
                 else if(rank == 6)
                 {
                     for (int pieceValue = 2; pieceValue <= 5; pieceValue++)
-                        foreach (Move move in BasicPawnMoves(originSquare, pieceValue))
+                        foreach (Move move in BasicPawnMoves(originSquare, foward, promotionPieceValue: pieceValue))
                             yield return move;
                 }
+                
+                if (rank != 6)
+                    foreach (Move move in BasicPawnMoves(originSquare, foward))
+                        yield return move;
             }
             else if (pawnColor == Pieces.Black)
             {
-                if(rank == 6 && !calculatingAttackedSquares)
+                if(!calculatingAttackedSquares && foward &&  rank == 6)
                 {
                     targetSquare = originSquare + 2 * dir * Pieces.Foward;
                     pieceOnTargetSquare = Board.Grid[targetSquare];
@@ -274,15 +289,19 @@ namespace ChessBoardModel
                 else if(rank == 1)
                 {
                     for (int pieceValue = 2; pieceValue <= 5; pieceValue++)
-                        foreach (Move move in BasicPawnMoves(originSquare, pieceValue))
+                        foreach (Move move in BasicPawnMoves(originSquare, foward, promotionPieceValue: pieceValue))
                             yield return move;
                 }
+                
+                if (rank != 1)
+                    foreach (Move move in BasicPawnMoves(originSquare, foward))
+                        yield return move;
             }
-            else
-                foreach(Move move in BasicPawnMoves(originSquare))
-                    yield return move;
+            /* bug */
+            //foreach(Move move in BasicPawnMoves(originSquare, foward))
+            //    yield return move;
         }
-        static IEnumerable<Move> BasicPawnMoves(int originSquare, int? promotionPieceValue = null)
+        static IEnumerable<Move> BasicPawnMoves(int originSquare, bool foward, int? promotionPieceValue = null)
         {
             int pawnColor = Pieces.GetPieceColor(Board.Grid[originSquare]);
             int dir = pawnColor == Pieces.White ? 1 : -1;
@@ -290,7 +309,7 @@ namespace ChessBoardModel
             int targetSquare = originSquare + dir * Pieces.Foward; 
             int pieceOnTargetSquare = Board.Grid[targetSquare];
 
-            if (pieceOnTargetSquare == Pieces.Empty && !calculatingAttackedSquares)
+            if (!calculatingAttackedSquares && pieceOnTargetSquare == Pieces.Empty && foward)
                 yield return new Move(originSquare, targetSquare, promotionPieceValue: promotionPieceValue | pawnColor);
 
             foreach (int attackOffset in Pieces.PawnAttacks)
@@ -302,7 +321,7 @@ namespace ChessBoardModel
                 if (colorOfPiece == Pieces.GetColorOfOtherSide(pawnColor))
                     yield return new Move(originSquare, targetSquare, promotionPieceValue: promotionPieceValue | pawnColor);
                 else if (En_passant != null && targetSquare == (int) En_passant)
-                    yield return new Move(originSquare, targetSquare, promotionPieceValue: promotionPieceValue | pawnColor, en_passant: true);
+                    yield return new Move(originSquare, targetSquare, en_passant: true);
             }
         }
         static IEnumerable<Move> GenerateMovesForSquare(int originSquare, int color)
@@ -342,8 +361,7 @@ namespace ChessBoardModel
         static List<Move> GetMovesForBoard(int color)
         {
             List<Move> moves = new();
-            if(!calculatingAttackedSquares)
-                Pins = GetPins();
+            Pins = !calculatingAttackedSquares ?  GetPins() : null;
             for (int rank = 0; rank < 8; rank++)
             {
                 for (int file = 0; file < 16; file++)
@@ -376,7 +394,7 @@ namespace ChessBoardModel
         }
         static List<Pin> GetPins()
         {
-            List<Pin> pinnedSquares = new List<Pin>();
+            List<Pin> pinnedSquares = new();
 
             foreach (int offset in Pieces.StraightOffsets)
             {
@@ -417,7 +435,7 @@ namespace ChessBoardModel
                     if (pieceOnSquareValue == Pieces.Queen || pieceOnSquareValue == PinPiece)
                     {
                         pinnedSquares.Add(new Pin((int)possiblePinSquare, dirOffset));
-                        Console.WriteLine("Straight pin: " + possiblePinSquare + " offset: " + dirOffset);   //remove !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        //Console.WriteLine("Straight pin: " + possiblePinSquare + " offset: " + dirOffset);
                         break;
                     }
                 }
