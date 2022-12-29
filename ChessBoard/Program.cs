@@ -1,6 +1,6 @@
 ﻿using ChessBoardModel;
 
-string position = "8/5p2/4B3/8/7b/8/4KP2/8 w - - 0 1";
+string position = "8/8/5B2/q3p3/1P1k3b/8/5P2/4K3 b - - 0 1";
 Board.SetPieces(position);
 IEnumerable<MoveManager.Move> moves = MoveManager.GetLegalMoves();
 Board.Show();
