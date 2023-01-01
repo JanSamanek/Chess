@@ -4,7 +4,7 @@ namespace ChessBoardModel
 {
     public static class MoveManager
     {
-        public static List<Pin>? Pins { get; set; } = null;
+        static List<Pin>? pins = null;
         static List<int>? attackedSquares = null;
         static bool calculatingAttackedSquares = false;
         public static Board.Coordinate? En_passant { get; set; }
@@ -137,9 +137,9 @@ namespace ChessBoardModel
         {
             int[] dirOffsets;
 
-            if (Pins!=null && Pins.Exists(x => x.pinnedSquare == originSquare) && !calculatingAttackedSquares)
+            if (pins!=null && pins.Exists(x => x.pinnedSquare == originSquare) && !calculatingAttackedSquares)
             {
-                Pin pin = Pins.Find(x => x.pinnedSquare == originSquare);
+                Pin pin = pins.Find(x => x.pinnedSquare == originSquare);
                 dirOffsets = new int[2] { pin.dirOffset, -pin.dirOffset };
             }
             else
@@ -223,7 +223,7 @@ namespace ChessBoardModel
         }
         static IEnumerable<Move> GenerateKnightMoves(int originSquare)
         {
-            if (Pins != null && Pins.Exists(x => x.pinnedSquare == originSquare) && !calculatingAttackedSquares)
+            if (pins != null && pins.Exists(x => x.pinnedSquare == originSquare) && !calculatingAttackedSquares)
                 yield break;
 
             int colorOfMovingPiece = Pieces.GetPieceColor(Board.Grid[originSquare]);
@@ -249,9 +249,9 @@ namespace ChessBoardModel
             bool foward = true;
 
             /* Pin Management */
-            if (Pins != null && Pins.Exists(x => x.pinnedSquare == originSquare) && !calculatingAttackedSquares)
+            if (pins != null && pins.Exists(x => x.pinnedSquare == originSquare) && !calculatingAttackedSquares)
             {
-                Pin pin = Pins.Find(x => x.pinnedSquare == originSquare);
+                Pin pin = pins.Find(x => x.pinnedSquare == originSquare);
 
                 dirOffsetAbs = pin.dirOffset < 0 ? -pin.dirOffset : pin.dirOffset;
                 if (dirOffsetAbs != 16)
@@ -370,7 +370,7 @@ namespace ChessBoardModel
         static List<Move> GetMovesForBoard(int color)
         {
             List<Move> moves = new();
-            Pins = !calculatingAttackedSquares ?  GetPins() : null;
+            pins = !calculatingAttackedSquares ?  GetPins() : null;
             for (int rank = 0; rank < 8; rank++)
             {
                 for (int file = 0; file < 16; file++)
@@ -387,12 +387,10 @@ namespace ChessBoardModel
         }
         static List<int> GetAttackedSquares()
         {
-            List<int> attackedSquares = new List<int>();
+            List<int> attackedSquares = new();
             calculatingAttackedSquares = true;
             foreach(Move attackMove in GetMovesForBoard(Board.SideWaiting))
-            {
                 attackedSquares.Add(attackMove.targetSquare);
-            }
             calculatingAttackedSquares = false;
             return attackedSquares;
         }
