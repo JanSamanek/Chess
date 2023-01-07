@@ -5,22 +5,22 @@ namespace ChessBoardModel
     public static class MoveManager
     {
         static List<Pin>? pins = null;
-        static List<int>? attackedSquares = null;
+        static List<int> attackedSquares = new();
+        static List<Move>? legalMoves = null;
         static bool calculatingAttackedSquares = false;
         public static Board.Coordinate? En_passant { get; set; }
         public enum CastlingType { KSWhite = 8, QSWhite = 4, KSBlack = 2, QSBlack = 1 };
         public static int Castling { get; set; } = 0;
-        static bool CastlingCheck(CastlingType type, List<int> attackedSquares)
+        static bool CastlingCheck(CastlingType type)
         {
             if((Castling & (int) type) != 0)
             {
-                List<int> AttackedSquares = attackedSquares;
                 switch (type)
                 {
                     case CastlingType.KSWhite:
                         if (Board.Grid[(int) Board.Coordinate.f1] == Pieces.Empty && Board.Grid[(int) Board.Coordinate.g1] == Pieces.Empty)
                         {
-                            if(!AttackedSquares.Contains((int) Board.Coordinate.f1) && !AttackedSquares.Contains((int)Board.Coordinate.g1))
+                            if(!attackedSquares.Contains((int) Board.Coordinate.f1) && !attackedSquares.Contains((int)Board.Coordinate.g1))
                             return true;
                         }
                         break;
@@ -28,7 +28,7 @@ namespace ChessBoardModel
                     case CastlingType.QSWhite:
                         if (Board.Grid[(int)Board.Coordinate.d1] == Pieces.Empty && Board.Grid[(int)Board.Coordinate.c1] == Pieces.Empty)
                         {
-                            if (!AttackedSquares.Contains((int)Board.Coordinate.d1) && !AttackedSquares.Contains((int)Board.Coordinate.c1))
+                            if (!attackedSquares.Contains((int)Board.Coordinate.d1) && !attackedSquares.Contains((int)Board.Coordinate.c1))
                                 return true;
                         }
                         break;
@@ -36,7 +36,7 @@ namespace ChessBoardModel
                     case CastlingType.KSBlack:
                         if (Board.Grid[(int)Board.Coordinate.f8] == Pieces.Empty && Board.Grid[(int)Board.Coordinate.g8] == Pieces.Empty)
                         {
-                            if (!AttackedSquares.Contains((int)Board.Coordinate.f8) && !AttackedSquares.Contains((int)Board.Coordinate.g8))
+                            if (!attackedSquares.Contains((int)Board.Coordinate.f8) && !attackedSquares.Contains((int)Board.Coordinate.g8))
                                 return true;
                         }
                         break; 
@@ -44,7 +44,7 @@ namespace ChessBoardModel
                     case CastlingType.QSBlack:
                         if (Board.Grid[(int)Board.Coordinate.d8] == Pieces.Empty && Board.Grid[(int)Board.Coordinate.c8] == Pieces.Empty)
                         {
-                            if (!AttackedSquares.Contains((int)Board.Coordinate.d8) && !AttackedSquares.Contains((int)Board.Coordinate.d8))
+                            if (!attackedSquares.Contains((int)Board.Coordinate.d8) && !attackedSquares.Contains((int)Board.Coordinate.d8))
                                 return true;
                         }
                         break;
@@ -195,12 +195,12 @@ namespace ChessBoardModel
             {
                 if(Board.SideToMove == Pieces.White)
                 {
-                    if (CastlingCheck(CastlingType.KSWhite, attackedSquares))
+                    if (CastlingCheck(CastlingType.KSWhite))
                     {
                         yield return new Move(originSquare,(int) Board.Coordinate.g1, CastlingType.KSWhite);
                         Castling &= (int) ~CastlingType.KSWhite;
                     }
-                    if (CastlingCheck(CastlingType.QSWhite, attackedSquares))
+                    if (CastlingCheck(CastlingType.QSWhite))
                     {
                         yield return new Move(originSquare, (int) Board.Coordinate.c1, CastlingType.QSWhite);
                         Castling &= (int) ~CastlingType.QSWhite;
@@ -208,12 +208,12 @@ namespace ChessBoardModel
                 }
                 else if(Board.SideToMove == Pieces.Black)
                 {
-                    if (CastlingCheck(CastlingType.KSBlack, attackedSquares))
+                    if (CastlingCheck(CastlingType.KSBlack))
                     {
                         yield return new Move(originSquare, (int)Board.Coordinate.g8, CastlingType.KSBlack);
                         Castling &= (int) ~CastlingType.KSBlack;
                     }
-                    if (CastlingCheck(CastlingType.QSBlack, attackedSquares))
+                    if (CastlingCheck(CastlingType.QSBlack))
                     {
                         yield return new Move(originSquare, (int)Board.Coordinate.c8, CastlingType.QSBlack);
                         Castling &= (int) ~CastlingType.QSBlack;
@@ -387,7 +387,6 @@ namespace ChessBoardModel
         }
         static List<int> GetAttackedSquares()
         {
-            List<int> attackedSquares = new();
             calculatingAttackedSquares = true;
             foreach(Move attackMove in GetMovesForBoard(Board.SideWaiting))
                 attackedSquares.Add(attackMove.targetSquare);
@@ -442,7 +441,6 @@ namespace ChessBoardModel
                     if (pieceOnSquareValue == Pieces.Queen || pieceOnSquareValue == PinPiece)
                     {
                         pinnedSquares.Add(new Pin((int)possiblePinSquare, dirOffset));
-                        //Console.WriteLine("Straight pin: " + possiblePinSquare + " offset: " + dirOffset);
                         break;
                     }
                 }
