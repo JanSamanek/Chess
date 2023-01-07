@@ -183,7 +183,7 @@ namespace ChessBoardModel
             foreach (int offset in Pieces.DirOffsets)
             {
                 int targetSquare = originSquare + offset;
-                if ((targetSquare & 0x88) == 0 && attackedSquares != null && !attackedSquares.Contains(targetSquare))
+                if ((targetSquare & 0x88) == 0 && !attackedSquares.Contains(targetSquare))
                 {
                     int pieceOnSquare = Board.Grid[targetSquare];
                     if(Pieces.GetPieceColor(pieceOnSquare) != colorOfKing)
@@ -191,7 +191,7 @@ namespace ChessBoardModel
                 }
             }
 
-            if (attackedSquares != null && !attackedSquares.Contains(originSquare))
+            if (!attackedSquares.Contains(originSquare))
             {
                 if(Board.SideToMove == Pieces.White)
                 {
