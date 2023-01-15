@@ -1,12 +1,11 @@
 ﻿using System.Diagnostics;
-
+// king moves after attack bug
 namespace ChessBoardModel
 {
     public static class MoveManager
     {
         static List<Pin>? pins = null;
         static List<int> attackedSquares = new();
-        static List<Move>? legalMoves = null;
         public static Board.Coordinate? En_passant { get; set; }
         public enum CastlingType { KSWhite = 8, QSWhite = 4, KSBlack = 2, QSBlack = 1 };
         public static int Castling { get; set; } = 0;
@@ -136,7 +135,7 @@ namespace ChessBoardModel
         {
             int[] dirOffsets;
 
-            if (pins!=null && pins.Exists(x => x.pinnedSquare == originSquare) && !calculatingAttackedSquares)
+            if (!calculatingAttackedSquares && pins != null && pins.Exists(x => x.pinnedSquare == originSquare))
             {
                 Pin pin = pins.Find(x => x.pinnedSquare == originSquare);
                 dirOffsets = new int[2] { pin.dirOffset, -pin.dirOffset };
@@ -222,7 +221,7 @@ namespace ChessBoardModel
         }
         static IEnumerable<Move> KnightMoves(int originSquare, bool calculatingAttackedSquares)
         {
-            if (pins != null && pins.Exists(x => x.pinnedSquare == originSquare) && !calculatingAttackedSquares)
+            if (!calculatingAttackedSquares && pins != null && pins.Exists(x => x.pinnedSquare == originSquare))
                 yield break;
 
             int colorOfMovingPiece = Pieces.GetPieceColor(Board.Grid[originSquare]);
@@ -248,7 +247,7 @@ namespace ChessBoardModel
             bool foward = true;
 
             /* Pin Management */
-            if (pins != null && pins.Exists(x => x.pinnedSquare == originSquare) && !calculatingAttackedSquares)
+            if (!calculatingAttackedSquares && pins != null && pins.Exists(x => x.pinnedSquare == originSquare))
             {
                 Pin pin = pins.Find(x => x.pinnedSquare == originSquare);
 
@@ -366,7 +365,7 @@ namespace ChessBoardModel
                 return empty;
             }
         }
-        static List<Move> GetMovesForBoard(int color, bool calculatingAttackedSquares=false)
+        static List<Move> GetMovesForColor(int color, bool calculatingAttackedSquares=false)
         {
             List<Move> moves = new();
             pins = !calculatingAttackedSquares ? GetPins() : null;
@@ -387,14 +386,14 @@ namespace ChessBoardModel
         static List<int> GetAttackedSquares()
         {
             List<int> attackedSquares = new();
-            foreach(Move attackMove in GetMovesForBoard(Board.SideWaiting, calculatingAttackedSquares: true))
+            foreach(Move attackMove in GetMovesForColor(Board.SideWaiting, calculatingAttackedSquares: true))
                 attackedSquares.Add(attackMove.targetSquare);
             return attackedSquares;
         }
         public static List<Move> GetLegalMoves()
         {
             attackedSquares = GetAttackedSquares();
-            return GetMovesForBoard(Board.SideToMove);
+            return GetMovesForColor(Board.SideToMove);
         }
         static List<Pin> GetPins()
         {
@@ -411,7 +410,7 @@ namespace ChessBoardModel
             }
             return pinnedSquares;
         }
-        static void WorkoutPin(List<Pin> pinnedSquares, int dirOffset, int PinPiece)
+        static void WorkoutPin(List<Pin> pinnedSquares, int dirOffset, int pinPiece)
         {
             int king = Board.Grid[Board.KingSquare];
             int colorOfKing = Pieces.GetPieceColor(king);
@@ -436,7 +435,7 @@ namespace ChessBoardModel
                     break;
                 else if (possiblePinSquare != null && colorOfPiece == Pieces.GetColorOfOtherSide(colorOfKing))
                 {
-                    if (pieceOnSquareValue == Pieces.Queen || pieceOnSquareValue == PinPiece)
+                    if (pieceOnSquareValue == Pieces.Queen || pieceOnSquareValue == pinPiece)
                     {
                         pinnedSquares.Add(new Pin((int)possiblePinSquare, dirOffset));
                         break;
