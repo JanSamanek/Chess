@@ -166,6 +166,15 @@ namespace ChessBoardModel
                     //on target square is a piece of opposite color
                     else if (Pieces.GetPieceColor(pieceOnTarget) != colorOfMovingPiece)
                     {
+                        // if calculating attackedSquares, king cannot go in the direction of a sliding attack
+                        if(calculatingAttackedSquares && Pieces.GetPieceValue(pieceOnTarget) == Pieces.King)
+                        {
+                            int squareBehindKing = targetSquare + dirOffset;
+                            int pieceBehindKing = Board.Grid[squareBehindKing];
+                            if (pieceBehindKing == Pieces.Empty)
+                                yield return new Move(originSquare, squareBehindKing);
+                        }
+
                         yield return new Move(originSquare, targetSquare);
                         break;
                     }
